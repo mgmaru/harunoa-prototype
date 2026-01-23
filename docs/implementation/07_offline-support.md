@@ -119,10 +119,10 @@ export const useOfflineStore = create<OfflineState & OfflineActions>()(
 
 ### 3. 同期サービス
 
-`src/lib/services/sync.ts`:
+`src/services/sync.ts`:
 ```typescript
 import { useOfflineStore } from '@/stores/offlineStore';
-import { createSession, updateSession, deleteSession } from '@/lib/firebase/sessions';
+import { createSession, updateSession, deleteSession } from '@/services/sessions';
 
 export async function syncOfflineQueue(userId: string): Promise<void> {
   const { queue, removeFromQueue, setSyncing, setSyncError, clearQueue } =
@@ -202,7 +202,7 @@ import { useEffect } from 'react';
 import { useAuth } from './useAuth';
 import { useOffline } from './useOffline';
 import { useOfflineStore } from '@/stores/offlineStore';
-import { syncOfflineQueue } from '@/lib/services/sync';
+import { syncOfflineQueue } from '@/services/sync';
 
 export function useSync() {
   const { user } = useAuth();

@@ -149,7 +149,7 @@ export const useTimerStore = create<TimerState & TimerActions>()(
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTimerStore } from '@/stores/timerStore';
-import { createSession } from '@/lib/firebase/sessions';
+import { createSession } from '@/services/sessions';
 import { useAuth } from './useAuth';
 
 export function useTimer() {
@@ -330,7 +330,7 @@ export default function TimerPage() {
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTimer } from '@/hooks/useTimer';
-import { formatTime } from '@/lib/utils/format';
+import { formatTime } from '@/lib/date/format';
 
 export default function FocusPage() {
   const router = useRouter();
@@ -448,7 +448,7 @@ export default function FocusPage() {
 
 ### 5. 時間フォーマット関数
 
-`src/lib/utils/format.ts`:
+`src/lib/date/format.ts`:
 ```typescript
 export function formatTime(ms: number): string {
   const totalSeconds = Math.floor(ms / 1000);

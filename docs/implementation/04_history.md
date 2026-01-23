@@ -22,7 +22,7 @@
 
 ### 1. セッションAPI実装
 
-`src/lib/firebase/sessions.ts`:
+`src/services/sessions.ts`:
 ```typescript
 import {
   collection,
@@ -39,7 +39,7 @@ import {
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
-import { db } from './config';
+import { db } from '@/lib/firebase/config';
 import { Session, CreateSessionInput, UpdateSessionInput } from '@/types/session';
 
 const sessionsRef = collection(db, 'sessions');
@@ -162,7 +162,7 @@ export async function getSessionsByPeriod(
 
 ### 2. 日付跨ぎ按分ロジック
 
-`src/lib/utils/session-split.ts`:
+`src/lib/date/session-split.ts`:
 ```typescript
 import { startOfDay, endOfDay, differenceInMinutes, addDays } from 'date-fns';
 
@@ -218,7 +218,7 @@ import {
   getSessionsByDate,
   updateSession,
   deleteSession,
-} from '@/lib/firebase/sessions';
+} from '@/services/sessions';
 import { Session, UpdateSessionInput } from '@/types/session';
 
 export function useSessions(date: Date) {

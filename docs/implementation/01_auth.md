@@ -22,7 +22,7 @@ Google OAuth認証を実装し、認証状態に基づいてルーティング�
 
 ### 1. 認証関数の実装
 
-`src/lib/firebase/auth.ts`:
+`src/services/auth.ts`:
 ```typescript
 import { 
   signInWithPopup, 
@@ -31,7 +31,7 @@ import {
   onAuthStateChanged as firebaseOnAuthStateChanged,
   User
 } from 'firebase/auth';
-import { auth, db } from './config';
+import { auth, db } from '@/lib/firebase/config';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const provider = new GoogleAuthProvider();
@@ -88,7 +88,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
 import { useEffect } from 'react';
 import { useAuthStore } from '@/stores/authStore';
-import { onAuthStateChanged, signInWithGoogle, signOut } from '@/lib/firebase/auth';
+import { onAuthStateChanged, signInWithGoogle, signOut } from '@/services/auth';
 
 export function useAuth() {
   const { user, isLoading, setUser } = useAuthStore();

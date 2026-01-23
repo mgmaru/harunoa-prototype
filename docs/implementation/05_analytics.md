@@ -22,7 +22,7 @@
 
 ### 1. 集計ユーティリティ
 
-`src/lib/utils/aggregation.ts`:
+`src/lib/date/aggregation.ts`:
 ```typescript
 import {
   startOfDay,
@@ -38,7 +38,7 @@ import {
 import { ja } from 'date-fns/locale';
 import { Session } from '@/types/session';
 import { Project } from '@/types/project';
-import { splitSessionByDate } from './session-split';
+import { splitSessionByDate } from '@/lib/date/session-split';
 
 export interface AggregateItem {
   projectId: string;
@@ -147,14 +147,14 @@ export function aggregateSessions(
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from './useAuth';
 import { useProjects } from './useProjects';
-import { getSessionsByPeriod } from '@/lib/firebase/sessions';
+import { getSessionsByPeriod } from '@/services/sessions';
 import {
   aggregateSessions,
   getPeriodRange,
   getPeriodLabel,
   PeriodType,
   AggregateItem,
-} from '@/lib/utils/aggregation';
+} from '@/lib/date/aggregation';
 import { addDays, addWeeks, addMonths, addYears, subDays, subWeeks, subMonths, subYears } from 'date-fns';
 
 export function useAnalytics() {
@@ -235,8 +235,8 @@ import {
   Title,
   Tooltip,
 } from 'chart.js';
-import { AggregateItem } from '@/lib/utils/aggregation';
-import { formatDuration } from '@/lib/utils/format';
+import { AggregateItem } from '@/lib/date/aggregation';
+import { formatDuration } from '@/lib/date/format';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip);
 
@@ -285,7 +285,7 @@ export function BarChart({ items }: Props) {
 
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
-import { AggregateItem } from '@/lib/utils/aggregation';
+import { AggregateItem } from '@/lib/date/aggregation';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -327,7 +327,7 @@ import { useAnalytics } from '@/hooks/useAnalytics';
 import { Header } from '@/components/layout/Header';
 import { BarChart } from '@/components/features/analytics/BarChart';
 import { PieChart } from '@/components/features/analytics/PieChart';
-import { formatDuration } from '@/lib/utils/format';
+import { formatDuration } from '@/lib/date/format';
 
 export default function AnalyticsPage() {
   const {

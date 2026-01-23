@@ -77,8 +77,12 @@ mkdir -p src/components/layout
 mkdir -p src/components/features
 mkdir -p src/hooks
 mkdir -p src/stores
+mkdir -p src/services
 mkdir -p src/lib/firebase
-mkdir -p src/lib/utils
+mkdir -p src/lib/date
+mkdir -p src/lib/validation
+mkdir -p src/lib/csv
+mkdir -p src/constants
 mkdir -p src/types
 ```
 

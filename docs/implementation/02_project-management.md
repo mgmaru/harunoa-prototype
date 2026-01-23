@@ -21,7 +21,7 @@
 
 ### 1. プロジェクトAPI実装
 
-`src/lib/firebase/projects.ts`:
+`src/services/projects.ts`:
 ```typescript
 import {
   collection,
@@ -35,9 +35,9 @@ import {
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
-import { db } from './config';
+import { db } from '@/lib/firebase/config';
 import { Project, CreateProjectInput } from '@/types/project';
-import { PROJECT_COLORS } from '@/lib/constants/colors';
+import { PROJECT_COLORS } from '@/constants/colors';
 
 const projectsRef = collection(db, 'projects');
 
@@ -151,7 +151,7 @@ export async function getArchivedProjects(userId: string): Promise<Project[]> {
 
 ### 2. カラーパレット定義
 
-`src/lib/constants/colors.ts`:
+`src/constants/colors.ts`:
 ```typescript
 export const PROJECT_COLORS = [
   '#3B82F6', // blue
@@ -184,7 +184,7 @@ import {
   archiveProject,
   restoreProject,
   getArchivedProjects,
-} from '@/lib/firebase/projects';
+} from '@/services/projects';
 import { Project, CreateProjectInput } from '@/types/project';
 
 export function useProjects() {

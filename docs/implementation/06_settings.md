@@ -21,10 +21,10 @@
 
 ### 1. ユーザー設定API
 
-`src/lib/firebase/settings.ts`:
+`src/services/settings.ts`:
 ```typescript
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from './config';
+import { db } from '@/lib/firebase/config';
 import { UserSettings } from '@/types/settings';
 
 export async function getUserSettings(userId: string): Promise<UserSettings> {
@@ -63,7 +63,7 @@ export async function updateUserSettings(
 
 ### 2. プリセットAPI
 
-`src/lib/firebase/presets.ts`:
+`src/services/presets.ts`:
 ```typescript
 import {
   collection,
@@ -78,8 +78,8 @@ import {
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
-import { db } from './config';
-import { PomodoroPreset, CreatePresetInput } from '@/types/pomodoro';
+import { db } from '@/lib/firebase/config';
+import { PomodoroPreset, CreatePresetInput } from '@/types/preset';
 
 const presetsRef = collection(db, 'pomodoroPresets');
 
@@ -153,7 +153,7 @@ export async function setActivePreset(
 
 ### 3. CSVエクスポート
 
-`src/lib/utils/csv-export.ts`:
+`src/lib/csv/export.ts`:
 ```typescript
 import { Project } from '@/types/project';
 import { Session } from '@/types/session';
