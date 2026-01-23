@@ -151,7 +151,33 @@ export async function setActivePreset(
 }
 ```
 
-### 3. CSVエクスポート
+### 3. アーカイブ済みセッション取得API
+
+`src/services/sessions.ts`に追加（04_history.mdで定義したファイルに追加）:
+```typescript
+export async function getArchivedSessions(userId: string): Promise<Session[]> {
+  const q = query(
+    sessionsRef,
+    where('userId', '==', userId),
+    where('isArchived', '==', true),
+    orderBy('startAt', 'desc')
+  );
+
+  const snapshot = await getDocs(q);
+
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+    startAt: (doc.data().startAt as Timestamp).toDate(),
+    endAt: (doc.data().endAt as Timestamp).toDate(),
+    archivedAt: (doc.data().archivedAt as Timestamp)?.toDate() || null,
+    createdAt: (doc.data().createdAt as Timestamp).toDate(),
+    updatedAt: (doc.data().updatedAt as Timestamp).toDate(),
+  })) as Session[];
+}
+```
+
+### 4. CSVエクスポート
 
 `src/lib/csv/export.ts`:
 ```typescript
@@ -176,7 +202,7 @@ export function exportSessionsToCSV(
   sessions: Session[],
   projectMap: Map<string, string>
 ): string {
-  const headers = ['ID', 'プロジェクト名', '開始時刻', '終了時刻', '計測時間(分)', 'メモ'];
+  const headers = ['ID', 'プロジェクト名', '開始時刻', '終了時刻', '計測時間(分)', 'メモ', 'アーカイブ済み', 'アーカイブ日時'];
   const rows = sessions.map((s) => [
     s.id,
     projectMap.get(s.projectId) || 'Unknown',
@@ -184,8 +210,10 @@ export function exportSessionsToCSV(
     format(s.endAt, 'yyyy-MM-dd HH:mm:ss'),
     s.durationMinutes,
     `"${s.memo.replace(/"/g, '""')}"`,
+    s.isArchived ? 'はい' : 'いいえ',
+    s.archivedAt ? format(s.archivedAt, 'yyyy-MM-dd HH:mm:ss') : '',
   ]);
-  
+
   return [headers, ...rows].map((row) => row.join(',')).join('\n');
 }
 
@@ -193,7 +221,7 @@ export function downloadCSV(content: string, filename: string): void {
   const bom = new Uint8Array([0xEF, 0xBB, 0xBF]); // UTF-8 BOM
   const blob = new Blob([bom, content], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
-  
+
   const a = document.createElement('a');
   a.href = url;
   a.download = filename;
@@ -204,7 +232,16 @@ export function downloadCSV(content: string, filename: string): void {
 }
 ```
 
-### 4. 設定画面
+#### CSVエクスポートの対象データ
+
+| 種類 | 対象 | 備考 |
+|------|------|------|
+| プロジェクト | 全プロジェクト | アーカイブ済み含む |
+| セッション | 全セッション | アーカイブ済み含む（1年以上経過したデータ） |
+
+セッションのCSVエクスポート時は、`getSessionsByPeriod`（アクティブのみ）と`getArchivedSessions`（アーカイブ済み）の両方を取得して結合する。
+
+### 5. 設定画面
 
 `src/app/(auth)/settings/page.tsx`:
 ```typescript
@@ -374,6 +411,11 @@ export default function SettingsPage() {
 - [ ] CSVファイルがダウンロードされる
 - [ ] ログアウト確認が表示される
 - [ ] ログアウト後ログイン画面に遷移
+- [ ] プロジェクトCSVにアーカイブ済みプロジェクトが含まれる
+- [ ] セッションCSVに開始時刻/終了時刻/計測時間/メモが含まれる
+- [ ] アーカイブ済みセッション（1年以上経過）がCSVに含まれる
+- [ ] CSVファイルをExcelで開いて文字化けしない（UTF-8 BOM対応）
+- [ ] 設定画面にログイン中のメールアドレスが表示される
 
 ---
 

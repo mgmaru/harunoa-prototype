@@ -48,6 +48,8 @@ erDiagram
         timestamp endAt
         number durationMinutes
         string memo
+        boolean isArchived
+        timestamp archivedAt
         timestamp createdAt
         timestamp updatedAt
     }
@@ -102,6 +104,8 @@ firestore/
 │   ├── endAt: timestamp
 │   ├── durationMinutes: number
 │   ├── memo: string
+│   ├── isArchived: boolean
+│   ├── archivedAt: timestamp | null
 │   ├── createdAt: timestamp
 │   └── updatedAt: timestamp
 │
@@ -161,6 +165,8 @@ export interface Session {
   endAt: Date;
   durationMinutes: number;
   memo: string;
+  isArchived: boolean;
+  archivedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -254,6 +260,24 @@ export type ProjectColor = typeof PROJECT_COLORS[number];
       "collectionGroup": "sessions",
       "queryScope": "COLLECTION",
       "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "isArchived", "order": "ASCENDING" },
+        { "fieldPath": "startAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "sessions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "order": "ASCENDING" },
+        { "fieldPath": "isArchived", "order": "ASCENDING" },
+        { "fieldPath": "endAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "sessions",
+      "queryScope": "COLLECTION",
+      "fields": [
         { "fieldPath": "projectId", "order": "ASCENDING" },
         { "fieldPath": "startAt", "order": "DESCENDING" }
       ]
@@ -321,6 +345,15 @@ service cloud.firestore {
 |------------|------|----------|
 | v0 | 2026-01-22 | 初版作成 |
 | v1 | 2026-01-23 | ディレクトリ構造変更に伴う修正 |
+| v2 | 2026-01-23 | セッションアーカイブ機能対応 |
+
+### v2での主な変更点
+
+| カテゴリ | 変更内容 |
+|----------|----------|
+| Session型 | `isArchived`, `archivedAt` フィールドを追加 |
+| Firestore構造 | sessionsコレクションに `isArchived`, `archivedAt` を追加 |
+| インデックス | アーカイブ状態でのフィルタリング用インデックスを追加 |
 
 ### v1での主な変更点
 

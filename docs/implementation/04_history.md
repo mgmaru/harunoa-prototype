@@ -59,6 +59,8 @@ export async function createSession(
     endAt: Timestamp.fromDate(input.endAt),
     durationMinutes,
     memo: input.memo || '',
+    isArchived: false,
+    archivedAt: null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   });
@@ -71,6 +73,8 @@ export async function createSession(
     endAt: input.endAt,
     durationMinutes,
     memo: input.memo || '',
+    isArchived: false,
+    archivedAt: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -90,6 +94,7 @@ export async function getSessionsByDate(
   let q = query(
     sessionsRef,
     where('userId', '==', userId),
+    where('isArchived', '==', false),
     where('startAt', '>=', Timestamp.fromDate(startOfDay)),
     where('startAt', '<=', Timestamp.fromDate(endOfDay)),
     orderBy('startAt', 'desc'),
@@ -142,6 +147,7 @@ export async function getSessionsByPeriod(
   const q = query(
     sessionsRef,
     where('userId', '==', userId),
+    where('isArchived', '==', false),
     where('startAt', '>=', Timestamp.fromDate(startDate)),
     where('startAt', '<=', Timestamp.fromDate(endDate)),
     orderBy('startAt', 'desc')
@@ -379,6 +385,18 @@ export default function HistoryPage() {
 - [ ] 開始>終了でエラーが表示される
 - [ ] セッション削除確認が表示される
 - [ ] 削除後に一覧から消える
+- [ ] セッション一覧がデフォルトで新しい順（降順）に表示される
+- [ ] 51件以上のセッションがある日で、ページネーション（50件/ページ）が動作する
+- [ ] 終了時刻を未来の日時に設定すると「終了時刻は現在時刻より後にできません」と表示され保存できない
+- [ ] セッションのメモを編集して保存できる
+- [ ] 日付を跨ぐセッション（例：23:50〜00:10）が両日の履歴画面で表示される
+- [ ] 48時間のセッションが3日間に按分表示される（1日目14h、2日目24h、3日目10h）
+- [ ] セッション修正後、集計画面の値が再計算されて更新される
+
+### エッジケース
+
+- [ ] 24時間を超えるセッションが正しく保存・表示・按分される
+- [ ] ちょうど日付が変わる瞬間（00:00:00）を跨ぐセッションが正しく按分される
 
 ---
 

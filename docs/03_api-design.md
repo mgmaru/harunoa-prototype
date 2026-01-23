@@ -91,12 +91,12 @@ function onAuthStateChanged(callback: (user: User | null) => void): Unsubscribe
 // services/projects.ts
 
 // 作成
-async function createProject(input: CreateProjectInput): Promise<Project>
+async function createProject(userId: string, input: CreateProjectInput): Promise<Project>
 // input: { name: string, color?: string }
 // 色が未指定の場合は自動割当
 
 // 一覧取得（アクティブのみ）
-async function getProjects(): Promise<Project[]>
+async function getProjects(userId: string): Promise<Project[]>
 // isArchived === false のものを取得
 // updatedAt降順でソート
 
@@ -113,7 +113,7 @@ async function restoreProject(id: string): Promise<void>
 // isArchived = false, archivedAt = null
 
 // アーカイブ一覧
-async function getArchivedProjects(): Promise<Project[]>
+async function getArchivedProjects(userId: string): Promise<Project[]>
 // isArchived === true のものを取得
 ```
 
@@ -128,8 +128,10 @@ async function getArchivedProjects(): Promise<Project[]>
 | 作成 | `createSession` | セッション記録 |
 | 更新 | `updateSession` | セッション修正 |
 | 削除 | `deleteSession` | セッション削除 |
-| 日付別取得 | `getSessionsByDate` | 指定日のセッション |
-| 期間別取得 | `getSessionsByPeriod` | 期間内のセッション |
+| 日付別取得 | `getSessionsByDate` | 指定日のセッション（アクティブのみ） |
+| 期間別取得 | `getSessionsByPeriod` | 期間内のセッション（アクティブのみ） |
+| アーカイブ実行 | `archiveOldSessions` | 1年以上経過したセッションをアーカイブ |
+| アーカイブ済み取得 | `getArchivedSessions` | アーカイブ済みセッション一覧 |
 
 ### 4.2 詳細
 
@@ -137,7 +139,7 @@ async function getArchivedProjects(): Promise<Project[]>
 // services/sessions.ts
 
 // 作成
-async function createSession(input: CreateSessionInput): Promise<Session>
+async function createSession(userId: string, input: CreateSessionInput): Promise<Session>
 // input: { projectId, startAt, endAt, memo? }
 // durationMinutesは自動計算
 
@@ -151,18 +153,32 @@ async function deleteSession(id: string): Promise<void>
 
 // 日付別取得（ページネーション対応）
 async function getSessionsByDate(
+  userId: string,
   date: Date,
   options?: { limit: number, cursor?: string }
 ): Promise<{ sessions: Session[], nextCursor?: string }>
 // 1ページ50件
 // startAt降順でソート
 
-// 期間別取得（集計用）
+// 期間別取得（集計用、アクティブのみ）
 async function getSessionsByPeriod(
+  userId: string,
   startDate: Date,
   endDate: Date,
   projectId?: string
 ): Promise<Session[]>
+// isArchived === false のものを取得
+
+// 1年以上経過したセッションをアーカイブ
+async function archiveOldSessions(userId: string): Promise<{ archivedCount: number }>
+// endAtが現在から1年以上前のセッションを対象
+// isArchived = true, archivedAt = now に更新
+// アーカイブした件数を返却
+
+// アーカイブ済みセッション一覧（CSVエクスポート用）
+async function getArchivedSessions(userId: string): Promise<Session[]>
+// isArchived === true のものを取得
+// startAt降順でソート
 ```
 
 ---
@@ -185,11 +201,11 @@ async function getSessionsByPeriod(
 // services/presets.ts
 
 // 作成
-async function createPreset(input: CreatePresetInput): Promise<PomodoroPreset>
+async function createPreset(userId: string, input: CreatePresetInput): Promise<PomodoroPreset>
 // input: { name, focusMinutes, breakMinutes, focusSound, breakSound }
 
 // 一覧取得
-async function getPresets(): Promise<PomodoroPreset[]>
+async function getPresets(userId: string): Promise<PomodoroPreset[]>
 // createdAt昇順でソート
 
 // 更新
@@ -200,7 +216,7 @@ async function deletePreset(id: string): Promise<void>
 // アクティブなプリセットは削除不可
 
 // アクティブ設定
-async function setActivePreset(id: string): Promise<void>
+async function setActivePreset(userId: string, presetId: string): Promise<void>
 // 他のプリセットのisActiveをfalseに
 ```
 
@@ -212,10 +228,10 @@ async function setActivePreset(id: string): Promise<void>
 // services/settings.ts
 
 // 取得
-async function getUserSettings(): Promise<UserSettings>
+async function getUserSettings(userId: string): Promise<UserSettings>
 
 // 更新
-async function updateUserSettings(input: Partial<UserSettings>): Promise<void>
+async function updateUserSettings(userId: string, input: Partial<UserSettings>): Promise<void>
 ```
 
 ---
@@ -366,6 +382,24 @@ async function withRetry<T>(
 |------------|------|----------|
 | v0 | 2026-01-22 | 初版作成 |
 | v1 | 2026-01-23 | services/レイヤー導入に伴うファイル配置の変更 |
+| v2 | 2026-01-23 | 関数シグネチャにuserIdパラメータを追加（実装仕様書との整合性） |
+| v3 | 2026-01-23 | セッションアーカイブAPI追加 |
+
+### v3での主な変更点
+
+| カテゴリ | 変更内容 |
+|----------|----------|
+| セッションAPI | `archiveOldSessions`, `getArchivedSessions` を追加 |
+| セッションAPI | `getSessionsByDate`, `getSessionsByPeriod` がアクティブのみ取得することを明記 |
+
+### v2での主な変更点
+
+| カテゴリ | 変更内容 |
+|----------|----------|
+| プロジェクトAPI | `createProject`, `getProjects`, `getArchivedProjects` にuserIdを追加 |
+| セッションAPI | `createSession`, `getSessionsByDate`, `getSessionsByPeriod` にuserIdを追加 |
+| プリセットAPI | `createPreset`, `getPresets`, `setActivePreset` にuserIdを追加 |
+| 設定API | `getUserSettings`, `updateUserSettings` にuserIdを追加 |
 
 ### v1での主な変更点
 

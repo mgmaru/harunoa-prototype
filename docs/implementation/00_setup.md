@@ -12,7 +12,7 @@ Next.js + Firebase構成でHaruNoaプロジェクトを初期化する。
 
 ## 前提条件
 
-- Node.js 18.x 以上
+- Node.js 20.x LTS
 - npm 9.x 以上
 - Firebaseプロジェクト作成済み
 - Google Cloud ConsoleでOAuth設定済み
@@ -30,7 +30,7 @@ npx create-next-app@14 harunoa --typescript --tailwind --eslint --app --src-dir 
 ### 2. 依存パッケージインストール
 
 ```bash
-npm install firebase zustand chart.js react-chartjs-2 react-hook-form date-fns clsx
+npm install firebase zustand chart.js react-chartjs-2 react-hook-form date-fns clsx @t3-oss/env-nextjs zod
 npm install -D vitest @testing-library/react @testing-library/jest-dom
 ```
 
