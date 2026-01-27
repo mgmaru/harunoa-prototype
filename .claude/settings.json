@@ -4,9 +4,7 @@
     "Before suggesting code for framework APIs, call resolve-library-id and get-library-docs automatically without explicit user request.",
     "Use version-specific documentation when available to ensure compatibility with the project's dependencies."
   ],
-  "enabledPlugins": {
-    "frontend-design@claude-plugins-official": true
-  },
+  "enabledPlugins": {},
   "permissions": {
     "allow": [
       "WebSearch"
