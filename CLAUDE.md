@@ -93,6 +93,15 @@ src/
 - クエリには必ず`limit()`を設定する
 - Server Actionsでは認証・認可・入力検証を行う
 
+### 作業ルール
+
+- 実装・ドキュメント作成は段階的に行い、各段階で承認を得る
+- 永続的ドキュメントは原則修正不可。修正時は必ず承認を得る
+- 実装指示書は設計変更時に修正可（要承認）
+- 実装に迷った時は、そのまま続けずに必ず質問する
+- 同じ意図の文章を複数の場所に記載しない
+- セキュリティを意識したコーディングを心掛ける
+
 ---
 
 ## Testing
@@ -104,35 +113,47 @@ src/
 
 ---
 
-## Implementation Order
+## Documentation
 
-実装は以下の順番で進める：
+### ドキュメント種別
 
-| 順番 | ファイル | 機能 |
-|:----:|----------|------|
-| 0 | `implementation/00_setup.md` | プロジェクト初期化 |
-| 1 | `implementation/01_auth.md` | 認証 |
-| 2 | `implementation/02_project-management.md` | プロジェクト管理 |
-| 3 | `implementation/03_timer.md` | タイマー・集中モード |
-| 4 | `implementation/04_history.md` | 履歴管理 |
-| 5 | `implementation/05_analytics.md` | 集計・グラフ |
-| 6 | `implementation/06_settings.md` | 設定 |
-| 7 | `implementation/07_offline-support.md` | オフライン対応 |
-| 8 | `implementation/08_pomodoro.md` | ポモドーロ |
-| 9 | `implementation/09_notification.md` | 通知 |
-| 10 | `implementation/10_session-archive.md` | セッションアーカイブ |
+| 種別 | 場所 | 役割 | 変更ルール |
+|------|------|------|------------|
+| 永続的ドキュメント | `docs/` | 設計仕様の定義 | 原則不可（要承認） |
+| 実装指示書 | `docs/implementation/` | 実装手順の記載 | 設計変更時は修正可（要承認） |
 
----
+### 永続的ドキュメント
 
-## Additional Documentation
-
-詳細は以下を参照：
-
-| ドキュメント | 内容 |
-|-------------|------|
+| ファイル | 内容 |
+|----------|------|
+| `requirements.md` | 要件定義 |
 | `01_tech-stack.md` | 技術スタック・依存パッケージ・環境変数 |
 | `02_data-model.md` | Firestore構造・型定義・セキュリティルール |
 | `03_api-design.md` | services層のAPI仕様 |
 | `04_component-structure.md` | コンポーネント設計・Hooks・Stores |
-| `frontend-coding-standards.md` | フロントエンドコーディング規約 |
-| `backend-coding-standards.md` | バックエンドコーディング規約 |
+
+### 実装指示書
+
+実装は以下の順番で進める（`docs/implementation/`配下）：
+
+| 順番 | ファイル | 機能 |
+|:----:|----------|------|
+| 0 | `00_setup.md` | プロジェクト初期化 |
+| 1 | `01_auth.md` | 認証 |
+| 2 | `02_project-management.md` | プロジェクト管理 |
+| 3 | `03_timer.md` | タイマー・集中モード |
+| 4 | `04_history.md` | 履歴管理 |
+| 5 | `05_analytics.md` | 集計・グラフ |
+| 6 | `06_settings.md` | 設定 |
+| 7 | `07_offline-support.md` | オフライン対応 |
+| 8 | `08_pomodoro.md` | ポモドーロ |
+| 9 | `09_notification.md` | 通知 |
+| 10 | `10_session-archive.md` | セッションアーカイブ |
+
+その他：`frontend-coding-standards.md`、`backend-coding-standards.md`
+
+### 設計変更時の対応
+
+- ドキュメントとコードを同時に更新する
+- 修正ドキュメントの影響範囲を特定し、関連ドキュメントも更新する
+- 図・表を活用し、簡潔に記載する
