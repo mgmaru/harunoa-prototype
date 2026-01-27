@@ -35,22 +35,33 @@ HaruNoaは、作業時間をプロジェクト単位で記録・可視化するW
 ## Directory Structure
 
 ```
-src/
-├── app/                  # Next.js App Router（ページ）
-│   ├── (auth)/           # 認証必要ページ群
-│   └── login/            # ログイン画面
-├── components/
-│   ├── ui/               # 汎用UI（Button, Modal, Toast等）
-│   ├── layout/           # レイアウト（Header, TabBar）
-│   └── features/         # 機能別（project/, timer/, history/等）
-├── hooks/                # カスタムフック
-├── stores/               # Zustandストア
-├── services/             # Firebase SDK呼び出し（データアクセス層）
-├── lib/                  # ユーティリティ
-│   ├── firebase/         # Firebase初期化のみ
-│   └── date/             # 日付操作・集計ロジック
-├── constants/            # 定数定義
-└── types/                # TypeScript型定義
+harunoa-prototype/
+├── src/
+│   ├── app/                  # Next.js App Router（ページ）
+│   │   ├── (auth)/           # 認証必要ページ群
+│   │   └── login/            # ログイン画面
+│   ├── components/
+│   │   ├── ui/               # 汎用UI（Button, Modal, Toast等）
+│   │   ├── layout/           # レイアウト（Header, TabBar）
+│   │   └── features/         # 機能別（project/, timer/, history/等）
+│   ├── hooks/                # カスタムフック
+│   ├── stores/               # Zustandストア
+│   ├── services/             # Firebase SDK呼び出し（データアクセス層）
+│   ├── lib/                  # ユーティリティ
+│   │   ├── firebase/         # Firebase初期化のみ
+│   │   └── date/             # 日付操作・集計ロジック
+│   ├── constants/            # 定数定義
+│   └── types/                # TypeScript型定義
+├── docs/
+│   ├── implementation/       # 実装指示書
+│   ├── testing/              # テスト仕様書
+│   ├── requirements.md       # 要件定義
+│   ├── 01_tech-stack.md      # 技術スタック
+│   ├── 02_data-model.md      # データモデル
+│   ├── 03_api-design.md      # API設計
+│   ├── 04_component-structure.md  # コンポーネント設計
+│   └── tasklist.md           # 実装タスクリスト
+└── tests/                    # 統合・E2Eテスト（Playwright）
 ```
 
 ---
@@ -125,6 +136,7 @@ src/
 |------|------|------|------------|
 | 永続的ドキュメント | `docs/` | 設計仕様の定義 | 原則不可（要承認） |
 | 実装指示書 | `docs/implementation/` | 実装手順の記載 | 設計変更時は修正可（要承認） |
+| テスト仕様書 | `docs/testing/` | テストシナリオ・計画の記載 | 設計変更時は修正可（要承認） |
 
 ### 永続的ドキュメント
 
@@ -156,6 +168,15 @@ src/
 | 10 | `10_session-archive.md` | セッションアーカイブ |
 
 その他：`frontend-coding-standards.md`、`backend-coding-standards.md`
+
+### テスト仕様書
+
+テスト関連のドキュメント（`docs/testing/`配下）：
+
+| ファイル | 内容 |
+|----------|------|
+| `test-scenarios.md` | テストシナリオ |
+| `integration-test-plan.md` | 統合テスト計画 |
 
 ### 設計変更時の対応
 
