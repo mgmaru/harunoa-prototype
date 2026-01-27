@@ -132,7 +132,7 @@
 ### 5.2 ディレクトリ詳細
 
 ```
-harunoa-prototype-ui/
+harunoa-prototype/
 ├── src/
 │   ├── app/                        # Next.js App Router
 │   │   ├── (auth)/                 # 認証が必要なページ群（Route Group）
