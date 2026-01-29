@@ -27,13 +27,13 @@ permissionMode: default
 
 - 実行可能: ビルドコマンド（`npm run build`, `npm run lint`, `npm run type-check`）
 - 読み取り可能: `src/`, `tests/`, `docs/`, `.eslintrc*`, `tsconfig.json`, `next.config.*` 等
-- 書き込み可能: `docs/reports/` ディレクトリのみ
+- 書き込み可能: `docs/reports/builds/` ディレクトリのみ
 - 編集禁止: 既存ファイルの編集（Edit）は一切行わない
 - 外部通信禁止: `WebFetch`, `WebSearch` は使用不可
 
 ## 禁止事項
 
-- `docs/reports/` 以外へのファイル作成
+- `docs/reports/builds/` 以外へのファイル作成
 - 既存ファイルの編集（Edit）
 - ソースコード（`src/`）の変更
 - `.env`ファイルの読み取り
@@ -82,13 +82,32 @@ npm run build
 
 ### 6. レポートの保存
 
-`docs/reports/` ディレクトリに保存。
+`docs/reports/builds/` ディレクトリに保存。
 ディレクトリが存在しない場合は作成する。
 
 ## レポート命名規則
 
-- フォーマット: `build-report-YYYYMMDD-HHMMSS.md`
-- 例: `build-report-20260129-143052.md`
+- フォーマット: `build-report-{scope}-YYYYMMDD-HHMMSS.md`
+- 保存先: `docs/reports/builds/`
+- 例: `docs/reports/builds/build-report-full-20260129-143052.md`
+
+### scope値の定義
+
+| scope値 | 意味 | 使用場面 |
+|---------|------|----------|
+| `full` | フル実行 | 型チェック + lint + ビルド |
+| `lint` | lintのみ | `npm run lint` |
+| `typecheck` | 型チェックのみ | `npm run type-check` |
+| `build` | ビルドのみ | `npm run build` |
+
+## レポート保存後の処理
+
+1. レポートを `docs/reports/builds/` に保存
+2. `docs/reports/builds/latest.md` シンボリックリンクを更新
+
+```bash
+cd docs/reports/builds && ln -sf build-report-{scope}-YYYYMMDD-HHMMSS.md latest.md
+```
 
 ## レポートフォーマット
 
@@ -226,5 +245,6 @@ npm run build
 
 ### レポート保存先
 
-- ディレクトリ: `docs/reports/`
+- ディレクトリ: `docs/reports/builds/`
 - この場所以外への書き込みは禁止
+- 最新レポートは `docs/reports/builds/latest.md` からアクセス可能

@@ -26,13 +26,13 @@ permissionMode: default
 
 - 実行可能: テストコマンド（`npm test`, `npm run test`等）
 - 読み取り可能: `src/`, `tests/`, `docs/` 配下すべて
-- 書き込み可能: `docs/reports/` ディレクトリのみ
+- 書き込み可能: `docs/reports/tests/` ディレクトリのみ
 - 編集禁止: 既存ファイルの編集（Edit）は一切行わない
 - 外部通信禁止: `WebFetch`, `WebSearch` は使用不可
 
 ## 禁止事項
 
-- `docs/reports/` 以外へのファイル作成
+- `docs/reports/tests/` 以外へのファイル作成
 - 既存ファイルの編集（Edit）
 - ソースコード（`src/`）の変更
 - `.env`ファイルの読み取り
@@ -71,13 +71,32 @@ npm test -- --coverage
 
 ### 4. レポートの保存
 
-`docs/reports/` ディレクトリに保存。
+`docs/reports/tests/` ディレクトリに保存。
 ディレクトリが存在しない場合は作成する。
 
 ## レポート命名規則
 
-- フォーマット: `test-report-YYYYMMDD-HHMMSS.md`
-- 例: `test-report-20260129-143052.md`
+- フォーマット: `test-report-{scope}-YYYYMMDD-HHMMSS.md`
+- 保存先: `docs/reports/tests/`
+- 例: `docs/reports/tests/test-report-all-20260129-143052.md`
+
+### scope値の定義
+
+| scope値 | 意味 | 使用場面 |
+|---------|------|----------|
+| `all` | 全テスト | `npm test`（全テスト実行） |
+| `unit` | ユニットテスト | 単体テストのみ実行 |
+| `integration` | 統合テスト | 統合テストのみ実行 |
+| `{feature}` | 機能名 | `auth`, `timer`, `project` など特定機能 |
+
+## レポート保存後の処理
+
+1. レポートを `docs/reports/tests/` に保存
+2. `docs/reports/tests/latest.md` シンボリックリンクを更新
+
+```bash
+cd docs/reports/tests && ln -sf test-report-{scope}-YYYYMMDD-HHMMSS.md latest.md
+```
 
 ## レポートフォーマット
 
@@ -183,5 +202,6 @@ npm test -- --coverage
 
 ### レポート保存先
 
-- ディレクトリ: `docs/reports/`
+- ディレクトリ: `docs/reports/tests/`
 - この場所以外への書き込みは禁止
+- 最新レポートは `docs/reports/tests/latest.md` からアクセス可能
