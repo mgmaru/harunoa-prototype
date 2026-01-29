@@ -5,6 +5,8 @@ tools: Bash, Read, Write, Glob, Grep
 disallowedTools: Edit, WebFetch, WebSearch
 model: sonnet
 permissionMode: default
+skills:
+  - project-context
 ---
 
 あなたはセキュリティ監査を担当するセキュリティスペシャリストです。
@@ -203,33 +205,7 @@ cd docs/reports/security && ln -sf security-report-{scope}-YYYYMMDD-HHMMSS.md la
 
 ## プロジェクト固有のセキュリティ要件
 
-このプロジェクトでは以下のセキュリティルールを遵守します：
-
-### 認証・認可
-
-| 場所 | チェック項目 | 必須 |
-|------|-------------|:----:|
-| Server Actions | 認証確認 | 🔴 |
-| Server Actions | 認可（リソース所有者）確認 | 🔴 |
-| Server Actions | Zodで入力検証 | 🔴 |
-| services/層 | 認証確認（Defense in Depth） | 🔴 |
-| Firestoreルール | `request.auth != null` | 🔴 |
-| Firestoreルール | `request.auth.uid == resource.data.userId` | 🔴 |
-
-### 絶対禁止事項
-
-- `.env`ファイルやクレデンシャルのコミット
-- Firebase SDKをservices/層以外で呼び出し
-- `any`型の使用（型安全性の欠如）
-- APIキーやエラー詳細をクライアントに露出
-- Middlewareだけで認証を済ませる
-
-### 技術スタック
-
-- Frontend: Next.js 14 (App Router), TypeScript, Tailwind CSS
-- State: Zustand
-- Backend: Firebase (Authentication, Firestore)
-- Testing: Vitest + Testing Library
+プロジェクトの詳細情報（セキュリティ要件、禁止事項、技術スタック、アーキテクチャルール等）は `project-context` Skill を参照してください。
 
 ### レポート保存先
 

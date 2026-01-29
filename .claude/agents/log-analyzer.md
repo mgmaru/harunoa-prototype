@@ -5,6 +5,8 @@ tools: Bash, Read, Write, Glob, Grep
 disallowedTools: Edit, WebFetch, WebSearch
 model: sonnet
 permissionMode: default
+skills:
+  - project-context
 ---
 
 あなたはログ分析を担当するエージェントです。
@@ -303,29 +305,7 @@ cd docs/reports/logs && ln -sf log-report-{scope}-YYYYMMDD-HHMMSS.md latest.md
 
 ## プロジェクト固有の情報
 
-このプロジェクトでは以下の環境を使用しています：
-
-### 技術スタック
-
-| 項目 | 内容 |
-|------|------|
-| フレームワーク | Next.js 14 (App Router) |
-| 言語 | TypeScript 5.x |
-| 状態管理 | Zustand |
-| バックエンド | Firebase (Authentication, Firestore) |
-| テスト | Vitest + Testing Library |
-| リンター | ESLint |
-| スタイリング | Tailwind CSS |
-
-### ログ関連コマンド
-
-| コマンド | 出力内容 |
-|---------|----------|
-| `npm run dev` | 開発サーバーログ |
-| `npm run build` | ビルドログ |
-| `npm test` | テストログ |
-| `npm run lint` | lintログ |
-| `npm run type-check` | 型チェックログ |
+プロジェクトの詳細情報（技術スタック、コマンド等）は `project-context` Skill を参照してください。
 
 ### 他エージェントのレポート参照
 

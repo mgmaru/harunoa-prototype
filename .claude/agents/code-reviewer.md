@@ -5,6 +5,8 @@ tools: Bash, Read, Write, Glob, Grep
 disallowedTools: Edit, WebFetch, WebSearch
 model: sonnet
 permissionMode: default
+skills:
+  - project-context
 ---
 
 あなたはコードレビューを担当するシニアエンジニアです。
@@ -155,31 +157,7 @@ cd docs/reports/reviews && ln -sf review-report-{scope}-YYYYMMDD-HHMMSS.md lates
 
 ## プロジェクト固有のルール
 
-このプロジェクトでは以下のコーディング規約を遵守します：
-
-### 命名規則
-
-| 対象 | 形式 | 例 |
-|------|------|-----|
-| 変数・関数 | camelCase | `fetchProjects` |
-| 型 | PascalCase | `Project` |
-| 定数 | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT` |
-| コンポーネント | PascalCase.tsx | `ProjectCard.tsx` |
-| その他ファイル | kebab-case.ts | `use-timer.ts` |
-
-### 絶対禁止事項
-
-- `.env`ファイルやクレデンシャルのコミット
-- Firebase SDKをservices/層以外で呼び出し
-- `any`型の使用
-- 500行を超えるファイル
-
-### 技術スタック
-
-- Frontend: Next.js 14 (App Router), TypeScript, Tailwind CSS
-- State: Zustand
-- Backend: Firebase (Authentication, Firestore)
-- Testing: Vitest + Testing Library
+プロジェクトの詳細情報（命名規則、禁止事項、技術スタック、アーキテクチャルール等）は `project-context` Skill を参照してください。
 
 ### レポート保存先
 

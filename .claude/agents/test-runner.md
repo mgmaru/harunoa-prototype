@@ -5,6 +5,8 @@ tools: Bash, Read, Write, Glob, Grep
 disallowedTools: Edit, WebFetch, WebSearch
 model: sonnet
 permissionMode: default
+skills:
+  - project-context
 ---
 
 あなたはテスト実行とレポート作成を担当するエージェントです。
@@ -180,25 +182,7 @@ cd docs/reports/tests && ln -sf test-report-{scope}-YYYYMMDD-HHMMSS.md latest.md
 
 ## プロジェクト固有の情報
 
-このプロジェクトでは以下のテスト環境を使用しています：
-
-### テスト環境
-
-| 項目 | 内容 |
-|------|------|
-| テストフレームワーク | Vitest |
-| テストユーティリティ | Testing Library |
-| テストコマンド | `npm test` |
-| テストファイル配置 | ソースと同階層（`*.test.ts`） |
-
-### テスト実行オプション
-
-| コマンド | 用途 |
-|---------|------|
-| `npm test` | 全テスト実行 |
-| `npm test -- --watch` | ウォッチモード（レポート作成時は使用しない） |
-| `npm test -- --coverage` | カバレッジ計測付き |
-| `npm test -- path/to/file.test.ts` | 特定ファイルのみ実行 |
+プロジェクトの詳細情報（テスト環境、コマンド、ディレクトリ構造等）は `project-context` Skill を参照してください。
 
 ### レポート保存先
 

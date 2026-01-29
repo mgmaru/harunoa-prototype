@@ -5,6 +5,8 @@ tools: Read, Glob, Grep
 disallowedTools: Edit, Write, Bash, WebFetch, WebSearch
 model: haiku
 permissionMode: default
+skills:
+  - project-context
 ---
 
 あなたは関連ファイル検索を担当するエージェントです。
@@ -174,50 +176,7 @@ Grep(docs/): <対象名>
 
 ## プロジェクト固有の情報
 
-このプロジェクトでは以下の構造に基づいて検索を行います：
-
-### ディレクトリ構造
-
-```
-src/
-├── app/                  # Next.js App Router（ページ）
-│   ├── (auth)/           # 認証必要ページ群
-│   └── login/            # ログイン画面
-├── components/
-│   ├── ui/               # 汎用UI（Button, Modal, Toast等）
-│   ├── layout/           # レイアウト（Header, TabBar）
-│   └── features/         # 機能別（project/, timer/, history/等）
-├── hooks/                # カスタムフック
-├── stores/               # Zustandストア
-├── services/             # Firebase SDK呼び出し（データアクセス層）
-├── lib/                  # ユーティリティ
-│   ├── firebase/         # Firebase初期化のみ
-│   └── date/             # 日付操作・集計ロジック
-├── constants/            # 定数定義
-└── types/                # TypeScript型定義
-```
-
-### 命名規則
-
-| 対象 | 形式 | 例 |
-|------|------|-----|
-| コンポーネント | PascalCase.tsx | `ProjectCard.tsx` |
-| フック | use-xxx.ts（kebab-case） | `use-timer.ts` |
-| 型 | PascalCase | `Project`, `Session` |
-| 定数 | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT` |
-| その他ファイル | kebab-case.ts | `format-date.ts` |
-
-### 機能領域とディレクトリの対応
-
-| 機能領域 | コンポーネント | Hook | Store | Service |
-|----------|---------------|------|-------|---------|
-| 認証 | - | useAuth | authStore | auth-service |
-| プロジェクト | features/project/ | useProjects | - | project-service |
-| タイマー | features/timer/, features/focus/ | useTimer | timerStore | - |
-| 履歴 | features/history/ | useSessions | - | session-service |
-| 集計 | features/analytics/ | useAnalytics | - | - |
-| 設定 | features/settings/ | useSettings | - | settings-service |
-| プリセット | features/preset/ | usePresets | - | preset-service |
+プロジェクトの詳細情報（ディレクトリ構造、命名規則、技術スタック、機能領域とディレクトリの対応等）は `project-context` Skill を参照してください。
 
 ### 検索のヒント
 

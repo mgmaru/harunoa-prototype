@@ -5,6 +5,8 @@ tools: Bash, Read, Write, Glob, Grep
 disallowedTools: Edit, WebFetch, WebSearch
 model: sonnet
 permissionMode: default
+skills:
+  - project-context
 ---
 
 あなたは依存関係の分析を担当するエージェントです。
@@ -216,38 +218,7 @@ cd docs/reports/dependencies && ln -sf dependency-report-{scope}-YYYYMMDD-HHMMSS
 
 ## プロジェクト固有の情報
 
-このプロジェクトでは以下の環境・パッケージを使用しています：
-
-### 環境
-
-| 項目 | バージョン |
-|------|-----------|
-| Node.js | 20.x LTS |
-| npm | 標準バンドル版 |
-
-### 主要な本番依存
-
-| パッケージ | 用途 |
-|------------|------|
-| next | フレームワーク（14.x） |
-| react / react-dom | UI（18.x） |
-| firebase | BaaS（認証・Firestore） |
-| zustand | 状態管理 |
-| chart.js / react-chartjs-2 | グラフ描画 |
-| react-hook-form | フォーム |
-| date-fns | 日付操作 |
-| zod | バリデーション |
-
-### 主要な開発依存
-
-| パッケージ | 用途 |
-|------------|------|
-| typescript | 型システム（5.x） |
-| tailwindcss | スタイリング（3.x） |
-| eslint | リンター |
-| prettier | フォーマッター |
-| vitest | テストフレームワーク |
-| @testing-library/react | テストユーティリティ |
+プロジェクトの詳細情報（技術スタック、主要パッケージ等）は `project-context` Skill を参照してください。
 
 ### 注意すべき依存関係
 

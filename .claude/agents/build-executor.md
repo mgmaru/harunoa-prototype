@@ -5,6 +5,8 @@ tools: Bash, Read, Write, Glob, Grep
 disallowedTools: Edit, WebFetch, WebSearch
 model: sonnet
 permissionMode: default
+skills:
+  - project-context
 ---
 
 あなたはビルドプロセスの実行とレポート作成を担当するエージェントです。
@@ -212,24 +214,7 @@ cd docs/reports/builds && ln -sf build-report-{scope}-YYYYMMDD-HHMMSS.md latest.
 
 ## プロジェクト固有の情報
 
-このプロジェクトでは以下のビルド環境を使用しています：
-
-### ビルド環境
-
-| 項目 | 内容 |
-|------|------|
-| フレームワーク | Next.js 14 (App Router) |
-| 言語 | TypeScript 5.x |
-| スタイリング | Tailwind CSS 3.x |
-| リンター | ESLint |
-
-### ビルドコマンド
-
-| コマンド | 用途 |
-|---------|------|
-| `npm run type-check` | TypeScript型チェック |
-| `npm run lint` | ESLint実行 |
-| `npm run build` | プロダクションビルド |
+プロジェクトの詳細情報（技術スタック、ビルドコマンド等）は `project-context` Skill を参照してください。
 
 ### CI/CDとの関係
 

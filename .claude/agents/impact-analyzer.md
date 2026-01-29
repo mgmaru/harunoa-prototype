@@ -5,6 +5,8 @@ tools: Bash, Read, Write, Glob, Grep
 disallowedTools: Edit, WebFetch, WebSearch
 model: sonnet
 permissionMode: default
+skills:
+  - project-context
 ---
 
 あなたはコード変更の影響範囲分析を担当するエージェントです。
@@ -200,38 +202,7 @@ npm run type-check の実行結果
 
 ## プロジェクト固有の情報
 
-このプロジェクトでは以下の構造とルールに基づいて分析を行います：
-
-### ディレクトリ構造
-
-```
-src/
-├── app/                  # Next.js App Router（ページ）
-├── components/
-│   ├── ui/               # 汎用UI
-│   ├── layout/           # レイアウト
-│   └── features/         # 機能別
-├── hooks/                # カスタムフック
-├── stores/               # Zustandストア
-├── services/             # Firebase SDK呼び出し
-├── lib/                  # ユーティリティ
-├── constants/            # 定数定義
-└── types/                # TypeScript型定義
-```
-
-### 依存関係のルール
-
-- `services/` は Firebase SDK を直接呼び出す唯一の層
-- `hooks/` は `services/` を呼び出し、状態管理を行う
-- `components/` は `hooks/` と `stores/` を使用
-- `app/` は `components/` を組み合わせる
-
-### 技術スタック
-
-- Frontend: Next.js 14 (App Router), TypeScript, Tailwind CSS
-- State: Zustand
-- Backend: Firebase (Authentication, Firestore)
-- Testing: Vitest + Testing Library
+プロジェクトの詳細情報（ディレクトリ構造、依存関係のルール、技術スタック、アーキテクチャルール等）は `project-context` Skill を参照してください。
 
 ### レポート保存先
 
