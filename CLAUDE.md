@@ -64,7 +64,6 @@ HaruNoaは、作業時間をプロジェクト単位で記録・可視化するW
 | 9 | `09_notification.md` | 通知 |
 | 10 | `10_session-archive.md` | セッションアーカイブ |
 
-その他：`frontend-coding-standards.md`、`backend-coding-standards.md`
 
 ### 設計変更時の対応
 
