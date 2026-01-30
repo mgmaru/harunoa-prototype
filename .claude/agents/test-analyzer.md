@@ -7,6 +7,7 @@ model: sonnet
 permissionMode: default
 skills:
   - project-context
+  - testing-standards
 ---
 
 あなたはテスト結果の分析を担当するエージェントです。

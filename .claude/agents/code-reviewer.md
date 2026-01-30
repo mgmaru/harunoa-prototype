@@ -7,6 +7,7 @@ model: sonnet
 permissionMode: default
 skills:
   - project-context
+  - testing-standards
 ---
 
 あなたはコードレビューを担当するシニアエンジニアです。
