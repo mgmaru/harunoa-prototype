@@ -8,6 +8,8 @@ permissionMode: default
 skills:
   - project-context
   - testing-standards
+  - frontend-standards
+  - backend-standards
 ---
 
 あなたはテスト結果の分析を担当するエージェントです。

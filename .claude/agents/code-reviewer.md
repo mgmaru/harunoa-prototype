@@ -8,6 +8,8 @@ permissionMode: default
 skills:
   - project-context
   - testing-standards
+  - frontend-standards
+  - backend-standards
 ---
 
 あなたはコードレビューを担当するシニアエンジニアです。

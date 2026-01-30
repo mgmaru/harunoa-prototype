@@ -7,6 +7,7 @@ model: sonnet
 permissionMode: default
 skills:
   - project-context
+  - backend-standards
 ---
 
 あなたはセキュリティ監査を担当するセキュリティスペシャリストです。
