@@ -70,3 +70,35 @@ HaruNoaは、作業時間をプロジェクト単位で記録・可視化するW
 - ドキュメントとコードを同時に更新する
 - 修正ドキュメントの影響範囲を特定し、関連ドキュメントも更新する
 - 図・表を活用し、簡潔に記載する
+
+### サブエージェントレポート
+
+サブエージェントは分析結果をMarkdownレポートとして `docs/reports/` 配下に保存する。親エージェントは必要に応じてこれらのレポートを参照すること。
+
+#### レポート保存先一覧
+
+| エージェント | 保存先 | 内容 |
+|-------------|--------|------|
+| build-executor | `docs/reports/builds/` | ビルド・lint・型チェック結果 |
+| test-runner | `docs/reports/tests/` | テスト実行結果 |
+| test-analyzer | `docs/reports/analysis/` | テスト失敗の原因分析・修正提案 |
+| code-reviewer | `docs/reports/reviews/` | コード品質・セキュリティレビュー |
+| security-checker | `docs/reports/security/` | セキュリティ脆弱性分析 |
+| impact-analyzer | `docs/reports/impacts/` | コード変更の影響範囲分析 |
+| dependency-checker | `docs/reports/dependencies/` | npm依存関係・脆弱性分析 |
+| log-analyzer | `docs/reports/logs/` | ログ分析・エラーパターン検出 |
+
+※ 各ディレクトリの `latest.md` から最新レポートにアクセス可能
+
+#### レポート参照タイミング
+
+| タイミング | 参照レポート | 目的 |
+|------------|--------------|------|
+| コード変更前 | `impacts/latest.md` | 影響範囲の事前把握 |
+| コード変更後 | `reviews/latest.md` | 品質・セキュリティ確認 |
+| テスト失敗時 | `analysis/latest.md` | 失敗原因の特定 |
+| ビルド失敗時 | `builds/latest.md` | エラー詳細の確認 |
+| CI前の確認 | `builds/latest.md`, `tests/latest.md` | CI失敗の未然防止 |
+| セキュリティ監査 | `security/latest.md` | 脆弱性の把握 |
+| 依存関係更新時 | `dependencies/latest.md` | 脆弱性・outdated確認 |
+| 問題調査時 | `logs/latest.md` | エラーパターン分析 |
