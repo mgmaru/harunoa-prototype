@@ -6,14 +6,14 @@
 
 ## Phase 1: プロジェクトセットアップ（00_setup.md）
 
-- [ ] Next.jsプロジェクト作成
-- [ ] 依存パッケージインストール
-- [ ] 環境変数設定（.env.local）
-- [ ] Firebase初期化（src/lib/firebase/config.ts）
-- [ ] ディレクトリ構造作成
-- [ ] Tailwind設定
-- [ ] 基本レイアウト作成（src/app/layout.tsx）
-- [ ] 動作確認（npm run dev）
+- [x] Next.jsプロジェクト作成
+- [x] 依存パッケージインストール
+- [x] 環境変数設定（.env.local）
+- [x] Firebase初期化（src/lib/firebase/config.ts）
+- [x] ディレクトリ構造作成
+- [x] Tailwind設定
+- [x] 基本レイアウト作成（src/app/layout.tsx）
+- [x] 動作確認（npm run dev）
 
 ---
 
