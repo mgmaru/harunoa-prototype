@@ -55,6 +55,7 @@ harunoa-prototype/
 ├── docs/
 │   ├── implementation/       # 実装指示書
 │   ├── testing/              # テスト仕様書
+│   ├── reports/              # サブエージェント実行レポート（自動生成）
 │   ├── requirements.md       # 要件定義
 │   ├── 01_tech-stack.md      # 技術スタック
 │   ├── 02_data-model.md      # データモデル
@@ -183,3 +184,20 @@ harunoa-prototype/
 - ドキュメントとコードを同時に更新する
 - 修正ドキュメントの影響範囲を特定し、関連ドキュメントも更新する
 - 図・表を活用し、簡潔に記載する
+
+### サブエージェントレポート
+
+サブエージェントは実行結果を`docs/reports/`に出力する。各ディレクトリの`latest.md`で最新レポートを参照可能。
+
+| 参照タイミング | レポート | 場所 |
+|---------------|----------|------|
+| コード変更後 | コードレビュー | `docs/reports/reviews/` |
+| テスト失敗時 | テスト失敗分析 | `docs/reports/analysis/` |
+| ビルド・lint失敗時 | ビルド結果 | `docs/reports/builds/` |
+| リファクタリング前 | 影響範囲分析 | `docs/reports/impacts/` |
+| セキュリティ監査時 | セキュリティチェック | `docs/reports/security/` |
+| 依存関係更新時 | 依存関係分析 | `docs/reports/dependencies/` |
+| 問題調査時 | ログ分析 | `docs/reports/logs/` |
+| テスト実行後 | テスト結果 | `docs/reports/tests/` |
+
+レポートの詳細フォーマットは`.claude/agents/`の各エージェント定義を参照。
