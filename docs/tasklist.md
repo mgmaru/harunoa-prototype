@@ -31,14 +31,14 @@
 
 ## Phase 3: プロジェクト管理（02_project-management.md）
 
-- [ ] プロジェクトAPI実装（src/services/projects.ts）
-- [ ] カラーパレット定義（src/constants/colors.ts）
-- [ ] プロジェクトフック（src/hooks/useProjects.ts）
-- [ ] プロジェクト一覧画面（src/app/(auth)/page.tsx）
-- [ ] プロジェクト作成モーダル
-- [ ] プロジェクト編集モーダル
-- [ ] アーカイブ一覧画面（src/app/(auth)/archive/page.tsx）
-- [ ] 単体テスト作成（hooks/useProjects）
+- [x] プロジェクトAPI実装（src/services/projects.ts）
+- [x] カラーパレット定義（src/constants/colors.ts）
+- [x] プロジェクトフック（src/hooks/useProjects.ts）
+- [x] プロジェクト一覧画面（src/app/(auth)/page.tsx）
+- [x] プロジェクト作成モーダル
+- [x] プロジェクト編集モーダル
+- [x] アーカイブ一覧画面（src/app/(auth)/archive/page.tsx）
+- [x] 単体テスト作成（hooks/useProjects）
 
 ---
 
