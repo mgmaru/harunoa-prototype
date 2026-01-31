@@ -1,7 +1,7 @@
 # ポモドーロ機能 実装指示書
 
 対象画面：SCR-005（集中モード）、SCR-009（ポモドーロプリセット管理）
-関連ドキュメント：requirements.md 5.6節、screen_specifications.md 6.5節・6.9節
+関連ドキュメント：screen_specifications/03_timer.md, screen_specifications/06_settings.md
 
 ---
 

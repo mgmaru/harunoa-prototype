@@ -1,7 +1,7 @@
 # 設定 実装指示書
 
 対象画面：SCR-008（設定）、SCR-009（ポモドーロプリセット管理）
-関連ドキュメント：screen_specifications.md 6.8〜6.9節
+関連ドキュメント：screen_specifications/06_settings.md
 
 ---
 

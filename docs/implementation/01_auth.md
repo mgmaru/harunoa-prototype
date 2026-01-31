@@ -1,7 +1,7 @@
 # 認証機能 実装指示書
 
 対象画面：SCR-001（ログイン画面）
-関連ドキュメント：screen_specifications.md 6.1節
+関連ドキュメント：screen_specifications/01_auth.md
 
 ---
 

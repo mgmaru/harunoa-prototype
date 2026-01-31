@@ -1,7 +1,7 @@
 # プロジェクト管理 実装指示書
 
 対象画面：SCR-002（プロジェクト一覧）、SCR-003（アーカイブ一覧）
-関連ドキュメント：screen_specifications.md 6.2〜6.3節
+関連ドキュメント：screen_specifications/02_project-management.md
 
 ---
 

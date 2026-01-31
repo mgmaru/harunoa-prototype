@@ -1,7 +1,7 @@
 # タイマー・集中モード 実装指示書
 
 対象画面：SCR-004（計測）、SCR-005（集中モード）
-関連ドキュメント：screen_specifications.md 6.4〜6.5節
+関連ドキュメント：screen_specifications/03_timer.md
 
 ---
 

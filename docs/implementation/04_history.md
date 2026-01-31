@@ -1,7 +1,7 @@
 # 履歴管理 実装指示書
 
 対象画面：SCR-006（履歴）
-関連ドキュメント：screen_specifications.md 6.6節
+関連ドキュメント：screen_specifications/04_history.md
 
 ---
 

@@ -1,7 +1,7 @@
 # 集計・グラフ 実装指示書
 
 対象画面：SCR-007（集計・グラフ）
-関連ドキュメント：screen_specifications.md 6.7節
+関連ドキュメント：screen_specifications/05_analytics.md
 
 ---
 
