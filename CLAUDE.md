@@ -41,27 +41,44 @@ HaruNoaは、作業時間をプロジェクト単位で記録・可視化するW
 | 種別 | 場所 | 役割 | 変更ルール |
 |------|------|------|------------|
 | 永続的ドキュメント | `docs/` | 設計仕様の定義 | 原則不可（要承認） |
+| 画面仕様書 | `docs/screen_specifications/` | 画面UI・機能の定義 | 設計変更時は修正可（要承認） |
 | 実装指示書 | `docs/implementation/` | 実装手順の記載 | 設計変更時は修正可（要承認） |
 | テスト仕様書 | `docs/testing/` | テストシナリオ・計画の記載 | 設計変更時は修正可（要承認） |
 | サブエージェントレポート | `docs/reports/` | 自動生成の分析結果 | 上書き禁止（新規作成のみ） |
+
+### 画面仕様書
+
+画面仕様書は `docs/screen_specifications/` 配下に機能単位で分割して配置：
+
+| ファイル | 内容 | 対象画面 |
+|----------|------|----------|
+| `00_common.md` | 共通仕様（用語、ナビ、コンポーネント） | - |
+| `01_auth.md` | 認証 | SCR-001 |
+| `02_project-management.md` | プロジェクト管理 | SCR-002, SCR-003 |
+| `03_timer.md` | タイマー・集中モード | SCR-004, SCR-005 |
+| `04_history.md` | 履歴 | SCR-006 |
+| `05_analytics.md` | 集計・グラフ | SCR-007 |
+| `06_settings.md` | 設定・プリセット管理 | SCR-008, SCR-009 |
+
+※ 旧版は `docs/screen_specifications.md` として保持
 
 ### 実装指示書
 
 実装は以下の順番で進める（`docs/implementation/`配下）：
 
-| 順番 | ファイル | 機能 |
-|:----:|----------|------|
-| 0 | `00_setup.md` | プロジェクト初期化 |
-| 1 | `01_auth.md` | 認証 |
-| 2 | `02_project-management.md` | プロジェクト管理 |
-| 3 | `03_timer.md` | タイマー・集中モード |
-| 4 | `04_history.md` | 履歴管理 |
-| 5 | `05_analytics.md` | 集計・グラフ |
-| 6 | `06_settings.md` | 設定 |
-| 7 | `07_offline-support.md` | オフライン対応 |
-| 8 | `08_pomodoro.md` | ポモドーロ |
-| 9 | `09_notification.md` | 通知 |
-| 10 | `10_session-archive.md` | セッションアーカイブ |
+| 順番 | ファイル | 機能 | 対応画面仕様書 |
+|:----:|----------|------|----------------|
+| 0 | `00_setup.md` | プロジェクト初期化 | - |
+| 1 | `01_auth.md` | 認証 | `screen_specifications/01_auth.md` |
+| 2 | `02_project-management.md` | プロジェクト管理 | `screen_specifications/02_project-management.md` |
+| 3 | `03_timer.md` | タイマー・集中モード | `screen_specifications/03_timer.md` |
+| 4 | `04_history.md` | 履歴管理 | `screen_specifications/04_history.md` |
+| 5 | `05_analytics.md` | 集計・グラフ | `screen_specifications/05_analytics.md` |
+| 6 | `06_settings.md` | 設定 | `screen_specifications/06_settings.md` |
+| 7 | `07_offline-support.md` | オフライン対応 | - |
+| 8 | `08_pomodoro.md` | ポモドーロ | `screen_specifications/03_timer.md`, `06_settings.md` |
+| 9 | `09_notification.md` | 通知 | - |
+| 10 | `10_session-archive.md` | セッションアーカイブ | - |
 
 
 ### 設計変更時の対応
