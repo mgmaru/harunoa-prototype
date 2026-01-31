@@ -19,13 +19,13 @@
 
 ## Phase 2: 認証機能（01_auth.md）
 
-- [ ] 認証関数の実装（src/services/auth.ts）
-- [ ] 認証ストアの実装（src/stores/authStore.ts）
-- [ ] 認証フックの実装（src/hooks/useAuth.ts）
-- [ ] ログインページの実装（src/app/login/page.tsx）
-- [ ] 認証レイアウトの実装（src/app/(auth)/layout.tsx）
-- [ ] ホームページプレースホルダー
-- [ ] 単体テスト作成（hooks/useAuth）
+- [x] 認証関数の実装（src/services/auth.ts）
+- [x] 認証ストアの実装（src/stores/authStore.ts）
+- [x] 認証フックの実装（src/hooks/useAuth.ts）
+- [x] ログインページの実装（src/app/login/page.tsx）
+- [x] 認証レイアウトの実装（src/app/(auth)/layout.tsx）
+- [x] ホームページプレースホルダー
+- [x] 単体テスト作成（hooks/useAuth）
 
 ---
 
