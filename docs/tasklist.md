@@ -134,22 +134,22 @@
 
 ## Phase 9: ポモドーロ（08_pomodoro.md）
 
-- [ ] ポモドーロストア（src/stores/pomodoroStore.ts）
-- [ ] ポモドーロフック（src/hooks/usePomodoro.ts）
-- [ ] タイマーフックとの統合
-- [ ] 集中モード画面の更新
-- [ ] ポモドーロ進捗コンポーネント
-- [ ] プリセット選択連携
-- [ ] プリセットフック（src/hooks/usePresets.ts）
-- [ ] デフォルトプリセット初期化
-- [ ] プリセット管理画面（src/app/(auth)/presets/page.tsx）
-- [ ] 単体テスト作成（hooks/usePomodoro, hooks/usePresets）
+- [x] ポモドーロストア（src/stores/pomodoroStore.ts）
+- [x] ポモドーロフック（src/hooks/usePomodoro.ts）
+- [x] タイマーフックとの統合
+- [x] 集中モード画面の更新
+- [x] ポモドーロ進捗コンポーネント
+- [x] プリセット選択連携
+- [x] プリセットフック（src/hooks/usePresets.ts）
+- [x] デフォルトプリセット初期化
+- [x] プリセット管理画面（src/app/(auth)/presets/page.tsx）
+- [x] 単体テスト作成（hooks/usePomodoro, hooks/usePresets）
 
 ---
 
 ## Phase 10: 通知機能（09_notification.md）
 
-- [ ] 通知フック（src/hooks/useNotification.ts）
+- [x] 通知フック（src/hooks/useNotification.ts）※Phase 9で簡易版を先行実装済み
 - [ ] トーストストア（src/stores/toastStore.ts）
 - [ ] トーストコンポーネント（src/components/ui/Toast.tsx）
 - [ ] 通知バナーコンポーネント
