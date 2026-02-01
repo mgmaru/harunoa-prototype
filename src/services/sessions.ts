@@ -5,6 +5,7 @@ import {
   updateDoc,
   deleteDoc,
   getDocs,
+  getDoc,
   query,
   where,
   orderBy,
@@ -12,6 +13,7 @@ import {
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
+import { startOfDay, endOfDay } from 'date-fns';
 import { db } from '@/lib/firebase/config';
 import { Session, CreateSessionInput, UpdateSessionInput } from '@/types/session';
 
@@ -151,4 +153,70 @@ export const updateSession = async (
  */
 export const deleteSession = async (sessionId: string): Promise<void> => {
   await deleteDoc(doc(db, SESSIONS_COLLECTION, sessionId));
+};
+
+/**
+ * 特定の日付のセッション一覧を取得
+ *
+ * その日に開始されたセッションを取得する（日付跨ぎのセッションは開始日で取得）
+ */
+export const getSessionsByDate = async (
+  userId: string,
+  date: Date,
+  options?: { limit?: number }
+): Promise<Session[]> => {
+  const dayStart = startOfDay(date);
+  const dayEnd = endOfDay(date);
+
+  const q = query(
+    collection(db, SESSIONS_COLLECTION),
+    where('userId', '==', userId),
+    where('startAt', '>=', Timestamp.fromDate(dayStart)),
+    where('startAt', '<=', Timestamp.fromDate(dayEnd)),
+    orderBy('startAt', 'desc'),
+    limit(options?.limit ?? MAX_SESSIONS_LIMIT)
+  );
+
+  const snapshot = await getDocs(q);
+
+  return snapshot.docs.map((doc) =>
+    toSession(doc.id, doc.data() as SessionDocument)
+  );
+};
+
+/**
+ * 期間内のセッション一覧を取得
+ */
+export const getSessionsByPeriod = async (
+  userId: string,
+  startDate: Date,
+  endDate: Date
+): Promise<Session[]> => {
+  const q = query(
+    collection(db, SESSIONS_COLLECTION),
+    where('userId', '==', userId),
+    where('startAt', '>=', Timestamp.fromDate(startDate)),
+    where('startAt', '<=', Timestamp.fromDate(endDate)),
+    orderBy('startAt', 'desc')
+  );
+
+  const snapshot = await getDocs(q);
+
+  return snapshot.docs.map((doc) =>
+    toSession(doc.id, doc.data() as SessionDocument)
+  );
+};
+
+/**
+ * セッションを1件取得
+ */
+export const getSession = async (sessionId: string): Promise<Session | null> => {
+  const docRef = doc(db, SESSIONS_COLLECTION, sessionId);
+  const snapshot = await getDoc(docRef);
+
+  if (!snapshot.exists()) {
+    return null;
+  }
+
+  return toSession(snapshot.id, snapshot.data() as SessionDocument);
 };
