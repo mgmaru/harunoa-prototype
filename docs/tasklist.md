@@ -83,13 +83,13 @@
 
 ## Phase 6: 集計・グラフ（05_analytics.md）
 
-- [ ] 集計ユーティリティ（src/lib/date/aggregation.ts）
-- [ ] 集計フック（src/hooks/useAnalytics.ts）
-- [ ] 棒グラフコンポーネント（BarChart）
-- [ ] 円グラフコンポーネント（PieChart）
-- [ ] 集計画面（src/app/(auth)/analytics/page.tsx）
-- [ ] 期間切替機能（日/週/月/年）
-- [ ] 単体テスト作成（lib/date/aggregation, hooks/useAnalytics）
+- [x] 集計ユーティリティ（src/lib/date/aggregation.ts）
+- [x] 集計フック（src/hooks/useAnalytics.ts）
+- [x] 棒グラフコンポーネント（BarChart）
+- [x] 円グラフコンポーネント（PieChart）
+- [x] 集計画面（src/app/(auth)/analytics/page.tsx）
+- [x] 期間切替機能（日/週/月/年）
+- [x] 単体テスト作成（lib/date/aggregation, hooks/useAnalytics）
 
 ---
 
