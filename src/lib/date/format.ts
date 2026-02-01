@@ -48,3 +48,19 @@ export const formatTime = (seconds: number): string => {
 
   return `${pad(hours)}:${pad(minutes)}:${pad(secs)}`;
 };
+
+/**
+ * ミリ秒を「HH:MM:SS」形式でフォーマット
+ */
+export const formatTimeMs = (ms: number): string => {
+  const totalSeconds = Math.floor(ms / 1000);
+  return formatTime(totalSeconds);
+};
+
+/**
+ * ミリ秒を「X時間Y分」形式でフォーマット
+ */
+export const formatDurationMs = (ms: number): string => {
+  const minutes = Math.floor(ms / 1000 / 60);
+  return formatDuration(minutes);
+};
