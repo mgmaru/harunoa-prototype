@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { FirebaseError } from 'firebase/app';
+import { getAndClearRedirectPath } from '@/lib/auth/redirect';
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
@@ -16,7 +17,9 @@ export default function LoginPage() {
     setError(null);
     try {
       await signIn();
-      router.push('/');
+      // 保存されたリダイレクト先があればそこへ、なければホームへ遷移
+      const redirectPath = getAndClearRedirectPath('/');
+      router.push(redirectPath);
     } catch (e) {
       if (e instanceof FirebaseError) {
         // ネットワークエラーの場合
