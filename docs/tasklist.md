@@ -44,15 +44,15 @@
 
 ## Phase 4: タイマー・集中モード（03_timer.md）
 
-- [ ] タイマーストア（src/stores/timerStore.ts）
-- [ ] タイマーフック（src/hooks/useTimer.ts）
-- [ ] 時間フォーマット関数（src/lib/date/format.ts）
-- [ ] 計測画面（src/app/(auth)/timer/page.tsx）
-- [ ] 集中モード画面（src/app/(auth)/focus/page.tsx）
-- [ ] メモオーバーレイ
-- [ ] 離脱確認モーダル
-- [ ] 計測切替警告モーダル
-- [ ] 単体テスト作成（lib/date/format, hooks/useTimer）
+- [x] タイマーストア（src/stores/timerStore.ts）
+- [x] タイマーフック（src/hooks/useTimer.ts）
+- [x] 時間フォーマット関数（src/lib/date/format.ts）
+- [x] 計測画面（src/app/(auth)/timer/page.tsx）
+- [x] 集中モード画面（src/app/(auth)/focus/page.tsx）
+- [x] メモオーバーレイ
+- [x] 離脱確認モーダル
+- [x] 計測切替警告モーダル
+- [x] 単体テスト作成（lib/date/format, hooks/useTimer）
 
 ### 結合テスト①（03_timer完了後）
 
