@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useTimerStore } from '@/stores/timerStore';
 import { createSession } from '@/services/sessions';
 import { useAuth } from './useAuth';
+import { useOfflineStore } from '@/stores/offlineStore';
+import { isOnline } from '@/services/sync';
 import { Session } from '@/types/session';
 
 export const useTimer = () => {
@@ -48,20 +50,50 @@ export const useTimer = () => {
       return null;
     }
 
-    try {
-      const session = await createSession(user.uid, {
-        projectId: sessionData.projectId,
-        startAt: sessionData.startAt,
-        endAt: sessionData.endAt,
-        durationMs: sessionData.durationMs,
-        memo: sessionData.memo,
-      });
+    const sessionInput = {
+      projectId: sessionData.projectId,
+      startAt: sessionData.startAt,
+      endAt: sessionData.endAt,
+      durationMs: sessionData.durationMs,
+      memo: sessionData.memo,
+    };
 
+    // オフラインの場合はキューに追加
+    if (!isOnline()) {
+      const { addCreateSession } = useOfflineStore.getState();
+      addCreateSession(sessionInput);
+      setElapsedMs(0);
+      // オフライン時はセッションオブジェクトを仮生成して返す
+      return {
+        id: `offline-${Date.now()}`,
+        userId: user.uid,
+        ...sessionInput,
+        isArchived: false,
+        archivedAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+    }
+
+    try {
+      const session = await createSession(user.uid, sessionInput);
       setElapsedMs(0);
       return session;
     } catch (error) {
-      console.error('Failed to create session:', error);
-      throw error;
+      // オンラインだが通信エラーの場合もキューに追加
+      console.error('Failed to create session, queuing for later:', error);
+      const { addCreateSession } = useOfflineStore.getState();
+      addCreateSession(sessionInput);
+      setElapsedMs(0);
+      return {
+        id: `offline-${Date.now()}`,
+        userId: user.uid,
+        ...sessionInput,
+        isArchived: false,
+        archivedAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
     }
   }, [timer, user]);
 

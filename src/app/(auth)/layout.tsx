@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { saveRedirectPath } from '@/lib/auth/redirect';
+import { OfflineBanner } from '@/components/ui/OfflineBanner';
 
 export default function AuthLayout({
   children,
@@ -34,5 +35,10 @@ export default function AuthLayout({
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <OfflineBanner />
+      {children}
+    </>
+  );
 }
