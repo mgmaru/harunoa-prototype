@@ -118,14 +118,14 @@
 
 ## Phase 8: オフライン対応（07_offline-support.md）
 
-- [ ] オフライン検知フック（src/hooks/useOffline.ts）
-- [ ] オフラインキューストア（src/stores/offlineStore.ts）
-- [ ] 同期サービス（src/services/sync.ts）
-- [ ] タイマーストアのオフライン対応更新
-- [ ] 同期トリガーフック（src/hooks/useSync.ts）
-- [ ] オフラインバナーコンポーネント
-- [ ] レイアウトへの組み込み
-- [ ] 単体テスト作成（hooks/useOffline, hooks/useSync）
+- [x] オフライン検知フック（src/hooks/useOffline.ts）
+- [x] オフラインキューストア（src/stores/offlineStore.ts）
+- [x] 同期サービス（src/services/sync.ts）
+- [x] useTimerフックのオフライン対応更新
+- [x] 同期トリガーフック（src/hooks/useSync.ts）
+- [x] オフラインバナーコンポーネント
+- [x] レイアウトへの組み込み
+- [x] 単体テスト作成（hooks/useOffline, hooks/useSync, stores/offlineStore）
 
 ---
 
