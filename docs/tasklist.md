@@ -61,7 +61,7 @@
 | 認証・ルーティング（INT-001〜002） | 2 | [x] | INT-002完全実装済み（直前ページリダイレクト対応） |
 | セッション分離（INT-003） | 1 | [x] | サービス層確認済み＋Firestoreルール作成済み |
 | 計測・プロジェクト連携（INT-004） | 1 | [x] | 4件のテストでパス |
-| 計測・履歴連携（INT-005〜006） | 2 | [ ] | 履歴画面（Phase 5）未実装のためスキップ |
+| 計測・履歴連携（INT-005〜006） | 2 | [x] | 5件のテストでパス（履歴画面Phase 5実装完了） |
 
 **テスト実施日**: 2026-02-01
 **テストファイル**: `src/__tests__/integration/core-functions.test.tsx`
@@ -70,14 +70,14 @@
 
 ## Phase 5: 履歴管理（04_history.md）
 
-- [ ] セッションAPI実装（src/services/sessions.ts）
-- [ ] 日付跨ぎ按分ロジック（src/lib/date/session-split.ts）
-- [ ] 履歴フック（src/hooks/useSessions.ts）
-- [ ] 履歴画面（src/app/(auth)/history/page.tsx）
-- [ ] セッション一覧コンポーネント
-- [ ] セッション編集モーダル
-- [ ] 日付フィルタ機能
-- [ ] 単体テスト作成（lib/date/session-split, hooks/useSessions）
+- [x] セッションAPI実装（src/services/sessions.ts）
+- [x] 日付跨ぎ按分ロジック（src/lib/date/session-split.ts）
+- [x] 履歴フック（src/hooks/useSessions.ts）
+- [x] 履歴画面（src/app/(auth)/history/page.tsx）
+- [x] セッション一覧コンポーネント
+- [x] セッション編集モーダル
+- [x] 日付フィルタ機能
+- [x] 単体テスト作成（lib/date/session-split, hooks/useSessions）
 
 ---
 
