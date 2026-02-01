@@ -95,15 +95,15 @@
 
 ## Phase 7: 設定（06_settings.md）
 
-- [ ] ユーザー設定API（src/services/settings.ts）
-- [ ] プリセットAPI（src/services/presets.ts）
-- [ ] アーカイブ済みセッション取得API追加
-- [ ] CSVエクスポート（src/lib/csv/export.ts）
-- [ ] 設定フック（src/hooks/useSettings.ts）
-- [ ] 設定画面（src/app/(auth)/settings/page.tsx）
-- [ ] エクスポートモーダル
-- [ ] ログアウトモーダル
-- [ ] 単体テスト作成（lib/csv/export, hooks/useSettings）
+- [x] ユーザー設定API（src/services/settings.ts）
+- [x] プリセットAPI（src/services/presets.ts）
+- [x] アーカイブ済みセッション取得API追加
+- [x] CSVエクスポート（src/lib/csv/export.ts）
+- [x] 設定フック（src/hooks/useSettings.ts）
+- [x] 設定画面（src/app/(auth)/settings/page.tsx）
+- [x] エクスポートモーダル
+- [x] ログアウトモーダル
+- [x] 単体テスト作成（lib/csv/export, hooks/useSettings）
 
 ### 結合テスト②（06_settings完了後）
 
