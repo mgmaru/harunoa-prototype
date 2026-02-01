@@ -7,11 +7,13 @@ import { useAuth } from './useAuth';
 import { useOfflineStore } from '@/stores/offlineStore';
 import { isOnline } from '@/services/sync';
 import { Session } from '@/types/session';
+import { usePomodoro } from './usePomodoro';
 
 export const useTimer = () => {
   const timer = useTimerStore();
   const { user } = useAuth();
   const [elapsedMs, setElapsedMs] = useState(0);
+  const pomodoro = usePomodoro();
 
   // 経過時間の更新（100ms間隔）
   useEffect(() => {
@@ -44,8 +46,20 @@ export const useTimer = () => {
     }
   }, [timer.status]);
 
+  // タイマー開始時にポモドーロも開始
+  const handleStart = useCallback(
+    (project: { id: string; name: string; color: string }) => {
+      timer.start(project);
+      pomodoro.startWithTimer();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
   const handleStop = useCallback(async (): Promise<Session | null> => {
     const sessionData = timer.stop();
+    pomodoro.stopWithTimer();
+
     if (!sessionData || !user) {
       return null;
     }
@@ -95,7 +109,8 @@ export const useTimer = () => {
         updatedAt: new Date(),
       };
     }
-  }, [timer, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   return {
     // State
@@ -107,7 +122,7 @@ export const useTimer = () => {
     elapsedMs,
 
     // Actions
-    start: timer.start,
+    start: handleStart,
     pause: timer.pause,
     resume: timer.resume,
     stop: handleStop,
@@ -118,5 +133,8 @@ export const useTimer = () => {
     isRunning: timer.status === 'running',
     isPaused: timer.status === 'paused',
     isStopped: timer.status === 'stopped',
+
+    // Pomodoro
+    pomodoro,
   };
 };

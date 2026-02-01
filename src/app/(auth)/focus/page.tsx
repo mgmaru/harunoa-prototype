@@ -6,6 +6,7 @@ import { useTimer } from '@/hooks/useTimer';
 import { formatTimeMs } from '@/lib/date/format';
 import { MemoOverlay } from '@/components/features/timer/MemoOverlay';
 import { ExitConfirmModal } from '@/components/features/timer/ExitConfirmModal';
+import { PomodoroProgress } from '@/components/features/focus/PomodoroProgress';
 
 export default function FocusPage() {
   const router = useRouter();
@@ -64,6 +65,17 @@ export default function FocusPage() {
     return null;
   }
 
+  // ポモドーロ休憩中かどうか
+  const isBreak = timer.pomodoro.isBreak;
+
+  // 状態表示テキスト
+  const getStatusText = () => {
+    if (isBreak) return '休憩中';
+    if (timer.isRunning) return '記録中';
+    if (timer.isPaused) return '一時停止中';
+    return '';
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col">
       {/* ヘッダー */}
@@ -94,19 +106,19 @@ export default function FocusPage() {
         </div>
 
         {/* 状態 */}
-        <div className="text-lg text-gray-400 mb-8">
-          {timer.isRunning && '記録中'}
-          {timer.isPaused && '一時停止中'}
-        </div>
+        <div className="text-lg text-gray-400 mb-8">{getStatusText()}</div>
 
-        {/* 経過時間 */}
+        {/* 経過時間（休憩中はポモドーロの残り時間を大きく表示） */}
         <div className="text-6xl md:text-7xl font-mono mb-12 tabular-nums">
-          {formatTimeMs(timer.elapsedMs)}
+          {isBreak
+            ? formatTimeMs(timer.pomodoro.remainingMs)
+            : formatTimeMs(timer.elapsedMs)}
         </div>
 
         {/* 操作ボタン */}
         <div className="flex gap-8">
-          {timer.isRunning && (
+          {/* 記録中：一時停止ボタン */}
+          {timer.isRunning && !isBreak && (
             <button
               onClick={timer.pause}
               className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-yellow-500 hover:bg-yellow-600 flex items-center justify-center text-2xl transition-colors"
@@ -116,7 +128,8 @@ export default function FocusPage() {
             </button>
           )}
 
-          {timer.isPaused && (
+          {/* 一時停止中：再開ボタン */}
+          {timer.isPaused && !isBreak && (
             <button
               onClick={timer.resume}
               className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center text-2xl transition-colors"
@@ -126,6 +139,18 @@ export default function FocusPage() {
             </button>
           )}
 
+          {/* 休憩中：スキップボタン */}
+          {isBreak && (
+            <button
+              onClick={timer.pomodoro.skipBreak}
+              className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-blue-500 hover:bg-blue-600 flex items-center justify-center text-2xl transition-colors"
+              aria-label="スキップ"
+            >
+              ⏭
+            </button>
+          )}
+
+          {/* 停止ボタン（常に表示） */}
           <button
             onClick={handleStop}
             disabled={isStopping}
@@ -136,6 +161,19 @@ export default function FocusPage() {
           </button>
         </div>
       </div>
+
+      {/* ポモドーロ進捗（有効時のみ表示） */}
+      {timer.pomodoro.isEnabled && !timer.pomodoro.isIdle && (
+        <div className="p-4 bg-gray-800 border-t border-gray-700">
+          <PomodoroProgress
+            phase={timer.pomodoro.phase}
+            remainingMs={timer.pomodoro.remainingMs}
+            focusDurationMinutes={timer.pomodoro.focusDurationMinutes}
+            breakDurationMinutes={timer.pomodoro.breakDurationMinutes}
+            onSkip={timer.pomodoro.skipBreak}
+          />
+        </div>
+      )}
 
       {/* メモオーバーレイ */}
       <MemoOverlay

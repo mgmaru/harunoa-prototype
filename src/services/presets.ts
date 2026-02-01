@@ -178,3 +178,22 @@ export const clearActivePreset = async (
     updatedAt: serverTimestamp(),
   });
 };
+
+/**
+ * デフォルトプリセットを確保（なければ作成）
+ * ユーザー初回ログイン時に呼び出す
+ */
+export const ensureDefaultPreset = async (userId: string): Promise<void> => {
+  const presets = await getPresets(userId);
+
+  if (presets.length === 0) {
+    const defaultPreset = await createPreset(userId, {
+      name: 'デフォルト',
+      focusDurationMinutes: 25,
+      breakDurationMinutes: 5,
+      focusEndSound: 'bell',
+      breakEndSound: 'chime',
+    });
+    await setActivePreset(userId, defaultPreset.id);
+  }
+};

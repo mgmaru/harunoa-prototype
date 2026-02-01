@@ -75,6 +75,26 @@ vi.mock('@/services/sessions', () => ({
   deleteSession: vi.fn(),
 }));
 
+// ===== プリセットサービスモック =====
+vi.mock('@/services/presets', () => ({
+  getPresets: vi.fn().mockResolvedValue([]),
+  createPreset: vi.fn(),
+  updatePreset: vi.fn(),
+  deletePreset: vi.fn(),
+  setActivePreset: vi.fn(),
+  clearActivePreset: vi.fn(),
+  ensureDefaultPreset: vi.fn().mockResolvedValue(undefined),
+}));
+
+// ===== 設定サービスモック =====
+vi.mock('@/services/settings', () => ({
+  getUserSettings: vi.fn().mockResolvedValue({
+    soundEnabled: false,
+    browserNotificationEnabled: false,
+  }),
+  updateUserSettings: vi.fn(),
+}));
+
 // ===== Next.js router モック =====
 const mockPush = vi.fn();
 const mockReplace = vi.fn();

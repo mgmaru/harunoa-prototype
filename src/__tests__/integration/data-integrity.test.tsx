@@ -90,6 +90,17 @@ vi.mock('@/services/settings', () => ({
   updateUserSettings: (...args: unknown[]) => mockUpdateUserSettings(...args),
 }));
 
+// ===== プリセットサービスモック =====
+vi.mock('@/services/presets', () => ({
+  getPresets: vi.fn().mockResolvedValue([]),
+  createPreset: vi.fn(),
+  updatePreset: vi.fn(),
+  deletePreset: vi.fn(),
+  setActivePreset: vi.fn(),
+  clearActivePreset: vi.fn(),
+  ensureDefaultPreset: vi.fn().mockResolvedValue(undefined),
+}));
+
 // ===== Next.js router モック =====
 const mockPush = vi.fn();
 const mockReplace = vi.fn();
@@ -115,7 +126,8 @@ import { useTimerStore } from '@/stores/timerStore';
 import { useAuth } from '@/hooks/useAuth';
 import { useProjects } from '@/hooks/useProjects';
 import { useSessions } from '@/hooks/useSessions';
-import { useSettings } from '@/hooks/useSettings';
+// useSettingsは現在未使用だがINT-015のログアウトテストで将来使用予定
+// import { useSettings } from '@/hooks/useSettings';
 import { aggregateSessions, getPeriodRange } from '@/lib/date/aggregation';
 import { splitSessionByDate } from '@/lib/date/session-split';
 import {
@@ -139,7 +151,8 @@ const mockUserB: Partial<User> = {
   displayName: 'User B',
 };
 
-const now = new Date('2026-01-15T12:00:00');
+// テスト用基準日付（現在未使用だが今後のテストで使用予定）
+// const now = new Date('2026-01-15T12:00:00');
 
 const mockProjects: Project[] = [
   {

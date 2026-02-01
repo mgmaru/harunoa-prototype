@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useProjects } from '@/hooks/useProjects';
 import { useTimer } from '@/hooks/useTimer';
+import { usePresets } from '@/hooks/usePresets';
 import { Header, TabBar } from '@/components/layout/Header';
 import { SwitchWarningModal } from '@/components/features/timer/SwitchWarningModal';
 
@@ -12,10 +13,43 @@ export default function TimerPage() {
   const router = useRouter();
   const { projects, isLoading: isProjectsLoading } = useProjects();
   const timer = useTimer();
+  const { presets, activePreset, isLoading: isPresetsLoading } = usePresets();
 
   const [selectedProjectId, setSelectedProjectId] = useState<string>('');
+  const [selectedPresetId, setSelectedPresetId] = useState<string>('');
   const [showSwitchWarning, setShowSwitchWarning] = useState(false);
   const [isSwitching, setIsSwitching] = useState(false);
+
+  // アクティブなプリセットが変更されたら選択状態を更新
+  useEffect(() => {
+    if (activePreset) {
+      setSelectedPresetId(activePreset.id);
+      timer.pomodoro.setPreset({
+        id: activePreset.id,
+        focusDurationMinutes: activePreset.focusDurationMinutes,
+        breakDurationMinutes: activePreset.breakDurationMinutes,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activePreset]);
+
+  // プリセット選択時にポモドーロストアを更新
+  const handlePresetChange = (presetId: string) => {
+    setSelectedPresetId(presetId);
+
+    if (presetId) {
+      const preset = presets.find((p) => p.id === presetId);
+      if (preset) {
+        timer.pomodoro.setPreset({
+          id: preset.id,
+          focusDurationMinutes: preset.focusDurationMinutes,
+          breakDurationMinutes: preset.breakDurationMinutes,
+        });
+      }
+    } else {
+      timer.pomodoro.setPreset(null);
+    }
+  };
 
   const handleStart = () => {
     const project = projects.find((p) => p.id === selectedProjectId);
@@ -120,18 +154,30 @@ export default function TimerPage() {
           )}
         </div>
 
-        {/* プリセット選択（Phase 9で実装） */}
+        {/* プリセット選択 */}
         <div className="mb-8">
           <label htmlFor="preset-select" className="block text-sm font-medium mb-2">
             ポモドーロプリセット（任意）
           </label>
-          <select
-            id="preset-select"
-            disabled
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-100 text-gray-500 cursor-not-allowed"
-          >
-            <option value="">使用しない</option>
-          </select>
+          {isPresetsLoading ? (
+            <div className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50">
+              読み込み中...
+            </div>
+          ) : (
+            <select
+              id="preset-select"
+              value={selectedPresetId}
+              onChange={(e) => handlePresetChange(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            >
+              <option value="">使用しない</option>
+              {presets.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}（{p.focusDurationMinutes}分/{p.breakDurationMinutes}分）
+                </option>
+              ))}
+            </select>
+          )}
           <Link
             href="/presets"
             className="text-primary-600 text-sm mt-2 inline-block hover:underline"
