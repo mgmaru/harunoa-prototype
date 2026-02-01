@@ -9,6 +9,8 @@ export type Session = {
   endAt: Date;
   durationMs: number; // 実作業時間（一時停止時間を除く）
   memo: string;
+  isArchived: boolean;
+  archivedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 };

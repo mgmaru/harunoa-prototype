@@ -27,6 +27,8 @@ type SessionDocument = {
   endAt: Timestamp;
   durationMs: number;
   memo: string;
+  isArchived: boolean;
+  archivedAt: Timestamp | null;
   createdAt: Timestamp;
   updatedAt: Timestamp;
 };
@@ -45,6 +47,8 @@ const toSession = (id: string, data: SessionDocument): Session => ({
   endAt: data.endAt.toDate(),
   durationMs: data.durationMs,
   memo: data.memo,
+  isArchived: data.isArchived ?? false,
+  archivedAt: data.archivedAt?.toDate() ?? null,
   createdAt: data.createdAt.toDate(),
   updatedAt: data.updatedAt.toDate(),
 });
@@ -63,6 +67,8 @@ export const createSession = async (
     endAt: Timestamp.fromDate(input.endAt),
     durationMs: input.durationMs,
     memo: input.memo,
+    isArchived: false,
+    archivedAt: null,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   };
@@ -78,6 +84,8 @@ export const createSession = async (
     endAt: input.endAt,
     durationMs: input.durationMs,
     memo: input.memo,
+    isArchived: false,
+    archivedAt: null,
     createdAt: now,
     updatedAt: now,
   };
@@ -219,4 +227,39 @@ export const getSession = async (sessionId: string): Promise<Session | null> => 
   }
 
   return toSession(snapshot.id, snapshot.data() as SessionDocument);
+};
+
+/**
+ * アーカイブ済みセッション一覧を取得（新しい順）
+ */
+export const getArchivedSessions = async (userId: string): Promise<Session[]> => {
+  const q = query(
+    collection(db, SESSIONS_COLLECTION),
+    where('userId', '==', userId),
+    where('isArchived', '==', true),
+    orderBy('startAt', 'desc')
+  );
+
+  const snapshot = await getDocs(q);
+
+  return snapshot.docs.map((docSnap) =>
+    toSession(docSnap.id, docSnap.data() as SessionDocument)
+  );
+};
+
+/**
+ * 全セッション一覧を取得（CSVエクスポート用、アーカイブ含む）
+ */
+export const getAllSessions = async (userId: string): Promise<Session[]> => {
+  const q = query(
+    collection(db, SESSIONS_COLLECTION),
+    where('userId', '==', userId),
+    orderBy('startAt', 'desc')
+  );
+
+  const snapshot = await getDocs(q);
+
+  return snapshot.docs.map((docSnap) =>
+    toSession(docSnap.id, docSnap.data() as SessionDocument)
+  );
 };

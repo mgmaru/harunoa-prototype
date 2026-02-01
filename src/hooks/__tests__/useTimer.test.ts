@@ -140,6 +140,8 @@ describe('useTimer', () => {
         endAt: now,
         durationMs: 1800000, // 30分
         memo: 'テストメモ',
+        isArchived: false,
+        archivedAt: null,
         createdAt: now,
         updatedAt: now,
       };

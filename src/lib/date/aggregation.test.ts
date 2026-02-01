@@ -3,7 +3,6 @@ import {
   getPeriodRange,
   getPeriodLabel,
   aggregateSessions,
-  PeriodType,
 } from './aggregation';
 import { Session } from '@/types/session';
 import { Project } from '@/types/project';
@@ -99,6 +98,8 @@ describe('aggregateSessions', () => {
     endAt,
     durationMs: endAt.getTime() - startAt.getTime(),
     memo: '',
+    isArchived: false,
+    archivedAt: null,
     createdAt: new Date(),
     updatedAt: new Date(),
   });
