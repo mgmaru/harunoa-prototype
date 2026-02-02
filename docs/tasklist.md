@@ -163,11 +163,11 @@
 
 ## Phase 11: セッション自動アーカイブ（10_session-archive.md）
 
-- [ ] アーカイブ実行API追加（src/services/sessions.ts）
-- [ ] アーカイブ実行フック（src/hooks/useSessionArchive.ts）
-- [ ] ログイン時の自動アーカイブ実行
-- [ ] 集計画面でのアーカイブ実行
-- [ ] 単体テスト作成（hooks/useSessionArchive）
+- [x] アーカイブ実行API追加（src/services/sessions.ts）
+- [x] アーカイブ実行フック（src/hooks/useSessionArchive.ts）
+- [x] ログイン時の自動アーカイブ実行
+- [x] 集計画面でのアーカイブ実行
+- [x] 単体テスト作成（hooks/useSessionArchive）
 
 ### 結合テスト③（全機能完了後）
 
