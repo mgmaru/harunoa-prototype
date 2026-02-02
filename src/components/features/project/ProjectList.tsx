@@ -1,16 +1,19 @@
 'use client';
 
 import { Project } from '@/types/project';
+import { ProjectStat } from '@/hooks/useProjectStats';
 import { ProjectCard, ArchivedProjectCard } from './ProjectCard';
 
 type ProjectListProps = {
   projects: Project[];
+  projectStats?: Map<string, ProjectStat>;
   onEdit: (project: Project) => void;
   onArchive: (project: Project) => void;
 };
 
 export const ProjectList = ({
   projects,
+  projectStats,
   onEdit,
   onArchive,
 }: ProjectListProps) => {
@@ -25,14 +28,19 @@ export const ProjectList = ({
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      {projects.map((project) => (
-        <ProjectCard
-          key={project.id}
-          project={project}
-          onEdit={() => onEdit(project)}
-          onArchive={() => onArchive(project)}
-        />
-      ))}
+      {projects.map((project) => {
+        const stats = projectStats?.get(project.id);
+        return (
+          <ProjectCard
+            key={project.id}
+            project={project}
+            totalTime={stats?.totalTime}
+            lastMeasuredAt={stats?.lastMeasuredAt}
+            onEdit={() => onEdit(project)}
+            onArchive={() => onArchive(project)}
+          />
+        );
+      })}
     </div>
   );
 };

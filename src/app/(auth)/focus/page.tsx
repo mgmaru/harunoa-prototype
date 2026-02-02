@@ -8,6 +8,43 @@ import { MemoOverlay } from '@/components/features/timer/MemoOverlay';
 import { ExitConfirmModal } from '@/components/features/timer/ExitConfirmModal';
 import { PomodoroProgress } from '@/components/features/focus/PomodoroProgress';
 
+// SVG Icons
+const PauseIcon = () => (
+  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+  </svg>
+);
+
+const PlayIcon = () => (
+  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M8 5v14l11-7z" />
+  </svg>
+);
+
+const SkipIcon = () => (
+  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM14.5 12L6 18V6l8.5 6zm0 0L23 12l-8.5-6v12z" />
+  </svg>
+);
+
+const StopIcon = () => (
+  <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M6 6h12v12H6z" />
+  </svg>
+);
+
+const MemoIcon = () => (
+  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+  </svg>
+);
+
+const BackIcon = () => (
+  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+  </svg>
+);
+
 export default function FocusPage() {
   const router = useRouter();
   const timer = useTimer();
@@ -82,15 +119,17 @@ export default function FocusPage() {
       <div className="flex justify-between items-center p-4">
         <button
           onClick={handleBack}
-          className="text-white hover:text-gray-300 transition-colors px-2 py-1"
+          className="text-white hover:text-gray-300 transition-colors px-2 py-1 flex items-center gap-1"
         >
-          ← 戻る
+          <BackIcon />
+          <span>戻る</span>
         </button>
         <button
           onClick={() => setShowMemoOverlay(true)}
-          className="text-white hover:text-gray-300 transition-colors px-2 py-1"
+          className="text-white hover:text-gray-300 transition-colors px-2 py-1 flex items-center gap-1"
         >
-          📝 メモ
+          <MemoIcon />
+          <span>メモ</span>
         </button>
       </div>
 
@@ -121,10 +160,10 @@ export default function FocusPage() {
           {timer.isRunning && !isBreak && (
             <button
               onClick={timer.pause}
-              className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-yellow-500 hover:bg-yellow-600 flex items-center justify-center text-2xl transition-colors"
+              className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-yellow-500 hover:bg-yellow-600 flex items-center justify-center transition-colors shadow-lg"
               aria-label="一時停止"
             >
-              ⏸
+              <PauseIcon />
             </button>
           )}
 
@@ -132,10 +171,10 @@ export default function FocusPage() {
           {timer.isPaused && !isBreak && (
             <button
               onClick={timer.resume}
-              className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center text-2xl transition-colors"
+              className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-colors shadow-lg"
               aria-label="再開"
             >
-              ▶
+              <PlayIcon />
             </button>
           )}
 
@@ -143,10 +182,10 @@ export default function FocusPage() {
           {isBreak && (
             <button
               onClick={timer.pomodoro.skipBreak}
-              className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-blue-500 hover:bg-blue-600 flex items-center justify-center text-2xl transition-colors"
+              className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-blue-500 hover:bg-blue-600 flex items-center justify-center transition-colors shadow-lg"
               aria-label="スキップ"
             >
-              ⏭
+              <SkipIcon />
             </button>
           )}
 
@@ -154,10 +193,10 @@ export default function FocusPage() {
           <button
             onClick={handleStop}
             disabled={isStopping}
-            className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center text-2xl transition-colors disabled:opacity-50"
+            className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition-colors shadow-lg disabled:opacity-50"
             aria-label="停止"
           >
-            ⏹
+            <StopIcon />
           </button>
         </div>
       </div>

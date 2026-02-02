@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { ColorPicker } from '@/components/ui/ColorPicker';
@@ -10,17 +10,26 @@ type ProjectCreateModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onCreate: (input: CreateProjectInput) => Promise<void>;
+  existingNames?: string[];
 };
 
 export const ProjectCreateModal = ({
   isOpen,
   onClose,
   onCreate,
+  existingNames = [],
 }: ProjectCreateModalProps) => {
   const [name, setName] = useState('');
   const [color, setColor] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 重複警告の表示判定
+  const isDuplicate = useMemo(() => {
+    const trimmedName = name.trim();
+    if (!trimmedName) return false;
+    return existingNames.some((n) => n === trimmedName);
+  }, [name, existingNames]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +41,7 @@ export const ProjectCreateModal = ({
       return;
     }
 
+    // 重複があっても作成は許可（警告のみ）
     setIsSubmitting(true);
     try {
       await onCreate({
@@ -72,6 +82,11 @@ export const ProjectCreateModal = ({
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             autoFocus
           />
+          {isDuplicate && (
+            <p className="mt-1 text-sm text-amber-600">
+              同じ名前のプロジェクトが既に存在します
+            </p>
+          )}
           {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
         </div>
 

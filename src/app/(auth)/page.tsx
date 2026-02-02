@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useProjects } from '@/hooks/useProjects';
+import { useProjectStats, PeriodType } from '@/hooks/useProjectStats';
 import { Header, TabBar } from '@/components/layout/Header';
 import { ProjectList } from '@/components/features/project/ProjectList';
 import { ProjectCreateModal } from '@/components/features/project/ProjectCreateModal';
@@ -12,7 +13,7 @@ import { Project, CreateProjectInput, UpdateProjectInput } from '@/types/project
 import Link from 'next/link';
 import clsx from 'clsx';
 
-type Period = 'day' | 'week' | 'month';
+type Period = PeriodType;
 
 const PERIOD_LABELS: Record<Period, string> = {
   day: '当日',
@@ -22,12 +23,13 @@ const PERIOD_LABELS: Record<Period, string> = {
 
 export default function HomePage() {
   const { projects, isLoading, error, create, update, archive } = useProjects();
+  const [period, setPeriod] = useState<Period>('week');
+  const { stats: projectStats } = useProjectStats(projects, period);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [archivingProject, setArchivingProject] = useState<Project | null>(null);
   const [isArchiving, setIsArchiving] = useState(false);
-  const [period, setPeriod] = useState<Period>('week');
 
   const handleCreate = async (input: CreateProjectInput): Promise<void> => {
     await create(input);
@@ -107,6 +109,7 @@ export default function HomePage() {
         ) : (
           <ProjectList
             projects={projects}
+            projectStats={projectStats}
             onEdit={setEditingProject}
             onArchive={setArchivingProject}
           />
@@ -120,6 +123,7 @@ export default function HomePage() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onCreate={handleCreate}
+        existingNames={projects.map((p) => p.name)}
       />
 
       <ProjectEditModal

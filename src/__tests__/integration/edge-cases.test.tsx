@@ -4,7 +4,7 @@
  * docs/testing/integration-test-plan.md セクション4に対応
  * 実施タイミング: 全機能実装完了後
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import type { User } from 'firebase/auth';
 
@@ -159,7 +159,6 @@ import { useToastStore } from '@/stores/toastStore';
 
 // ===== テスト対象のインポート =====
 import { usePresets } from '@/hooks/usePresets';
-import { useTimer } from '@/hooks/useTimer';
 
 // =========================================================================
 // EDGE-001: 複数端末での競合テスト (Last Write Wins)
@@ -257,7 +256,6 @@ describe('EDGE-002: ブラウザクラッシュ復帰', () => {
 
   it('計測中の状態がZustand persistにより保存される', () => {
     const timerStore = useTimerStore.getState();
-    const now = Date.now();
 
     // 計測開始
     timerStore.start({

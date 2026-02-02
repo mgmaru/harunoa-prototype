@@ -7,6 +7,12 @@ import { Button } from '@/components/ui/Button';
 import { Project } from '@/types/project';
 import { formatDate } from '@/lib/date/format';
 
+const PlayIcon = () => (
+  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M8 5v14l11-7z" />
+  </svg>
+);
+
 type ProjectCardProps = {
   project: Project;
   totalTime?: string;
@@ -48,11 +54,12 @@ export const ProjectCard = ({
         <Link
           href={`/timer?projectId=${project.id}`}
           className={clsx(
-            'ml-auto inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium',
+            'ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium',
             'bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors'
           )}
         >
-          計測開始 ▶
+          <span>計測開始</span>
+          <PlayIcon />
         </Link>
       </div>
     </div>

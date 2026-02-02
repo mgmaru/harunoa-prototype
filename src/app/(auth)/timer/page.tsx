@@ -9,6 +9,12 @@ import { usePresets } from '@/hooks/usePresets';
 import { Header, TabBar } from '@/components/layout/Header';
 import { SwitchWarningModal } from '@/components/features/timer/SwitchWarningModal';
 
+const PlayIcon = () => (
+  <svg className="w-6 h-6 inline-block mr-2" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M8 5v14l11-7z" />
+  </svg>
+);
+
 export default function TimerPage() {
   const router = useRouter();
   const { projects, isLoading: isProjectsLoading } = useProjects();
@@ -190,9 +196,10 @@ export default function TimerPage() {
         <button
           onClick={handleStart}
           disabled={!selectedProjectId}
-          className="w-full bg-primary-600 text-white text-xl py-6 rounded-xl hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full bg-primary-600 text-white text-xl py-6 rounded-xl hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
         >
-          ▶ 計測開始
+          <PlayIcon />
+          <span>計測開始</span>
         </button>
       </main>
 

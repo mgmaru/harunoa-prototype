@@ -4,8 +4,8 @@
  * docs/testing/integration-test-plan.md セクション3に対応
  * 実施タイミング: 全機能実装完了後
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
 import type { User } from 'firebase/auth';
 
 // ===== Firebase モック =====
@@ -158,7 +158,6 @@ import { useOfflineStore } from '@/stores/offlineStore';
 import { useToastStore } from '@/stores/toastStore';
 
 // ===== テスト対象のインポート =====
-import { usePresets } from '@/hooks/usePresets';
 import { useSessionArchive } from '@/hooks/useSessionArchive';
 import { exportSessionsToCSV, createProjectMap } from '@/lib/csv/export';
 import type { Session } from '@/types/session';
