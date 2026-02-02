@@ -22,8 +22,20 @@ type QuickDate = {
 export default function HistoryPage() {
   const today = useMemo(() => new Date(), []);
   const [selectedDate, setSelectedDate] = useState(today);
-  const { sessions, isLoading, update, remove, error } = useSessions(selectedDate);
+  const [selectedProjectId, setSelectedProjectId] = useState<string>('');
   const { projects } = useProjects();
+  const {
+    sessions,
+    isLoading,
+    update,
+    remove,
+    error,
+    pagination,
+    goToNextPage,
+    goToPrevPage,
+  } = useSessions(selectedDate, {
+    projectId: selectedProjectId || undefined,
+  });
 
   const [editingSession, setEditingSession] = useState<Session | null>(null);
   const [deletingSession, setDeletingSession] = useState<Session | null>(null);
@@ -96,6 +108,26 @@ export default function HistoryPage() {
           />
         </div>
 
+        {/* プロジェクトフィルタ */}
+        <div className="mb-6">
+          <label htmlFor="project-filter" className="block text-sm font-medium text-gray-700 mb-1">
+            プロジェクト
+          </label>
+          <select
+            id="project-filter"
+            value={selectedProjectId}
+            onChange={(e) => setSelectedProjectId(e.target.value)}
+            className="border border-gray-300 rounded-lg px-4 py-2 w-full max-w-xs focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          >
+            <option value="">すべてのプロジェクト</option>
+            {projects.map((project) => (
+              <option key={project.id} value={project.id}>
+                {project.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* 選択日表示 */}
         <p className="text-gray-600 mb-4">
           {format(selectedDate, 'yyyy年M月d日（E）', { locale: ja })}
@@ -118,6 +150,50 @@ export default function HistoryPage() {
             onEdit={setEditingSession}
             onDelete={setDeletingSession}
           />
+        )}
+
+        {/* ページネーション */}
+        {!isLoading && pagination.totalCount > 0 && (
+          <div className="mt-6 flex items-center justify-center gap-4">
+            <button
+              type="button"
+              onClick={goToPrevPage}
+              disabled={!pagination.hasPrevPage}
+              className={clsx(
+                'px-4 py-2 rounded-lg font-medium transition-colors',
+                pagination.hasPrevPage
+                  ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              )}
+              aria-label="前のページへ"
+            >
+              &lt; 前へ
+            </button>
+            <span className="text-gray-700">
+              {pagination.currentPage} / {pagination.totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={goToNextPage}
+              disabled={!pagination.hasNextPage}
+              className={clsx(
+                'px-4 py-2 rounded-lg font-medium transition-colors',
+                pagination.hasNextPage
+                  ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              )}
+              aria-label="次のページへ"
+            >
+              次へ &gt;
+            </button>
+          </div>
+        )}
+
+        {/* 件数表示 */}
+        {!isLoading && pagination.totalCount > 0 && (
+          <p className="mt-2 text-center text-sm text-gray-500">
+            全{pagination.totalCount}件
+          </p>
         )}
       </main>
 

@@ -14,7 +14,7 @@ import {
   Timestamp,
   writeBatch,
 } from 'firebase/firestore';
-import { startOfDay, endOfDay, subYears } from 'date-fns';
+import { startOfDay, endOfDay, subYears, subDays } from 'date-fns';
 import { db } from '@/lib/firebase/config';
 import { Session, CreateSessionInput, UpdateSessionInput } from '@/types/session';
 
@@ -36,6 +36,8 @@ type SessionDocument = {
 
 const SESSIONS_COLLECTION = 'sessions';
 const MAX_SESSIONS_LIMIT = 100;
+/** ページネーション: 1ページあたりの件数 */
+const PAGE_SIZE = 50;
 
 /**
  * Firestore DocumentからSession型に変換
@@ -167,24 +169,53 @@ export const deleteSession = async (sessionId: string): Promise<void> => {
 };
 
 /**
+ * ページネーション付きセッション取得の結果
+ */
+type PaginatedSessionsResult = {
+  /** セッション一覧 */
+  sessions: Session[];
+  /** 総件数 */
+  totalCount: number;
+  /** 現在のページ番号（1始まり） */
+  currentPage: number;
+  /** 総ページ数 */
+  totalPages: number;
+  /** 次のページがあるか */
+  hasNextPage: boolean;
+  /** 前のページがあるか */
+  hasPrevPage: boolean;
+};
+
+/**
  * 特定の日付のセッション一覧を取得（アーカイブ済みを除外）
  *
  * その日に開始されたセッションを取得する（日付跨ぎのセッションは開始日で取得）
+ * projectIdを指定すると、そのプロジェクトのセッションのみを取得
+ * pageを指定すると、ページネーションを適用（1ページ50件）
  */
 export const getSessionsByDate = async (
   userId: string,
   date: Date,
-  options?: { limit?: number }
+  options?: { limit?: number; projectId?: string; page?: number }
 ): Promise<Session[]> => {
   const dayStart = startOfDay(date);
   const dayEnd = endOfDay(date);
 
-  const q = query(
-    collection(db, SESSIONS_COLLECTION),
+  // プロジェクトIDが指定されている場合は、そのプロジェクトのみフィルタ
+  const baseConstraints = [
     where('userId', '==', userId),
     where('isArchived', '==', false),
     where('startAt', '>=', Timestamp.fromDate(dayStart)),
     where('startAt', '<=', Timestamp.fromDate(dayEnd)),
+  ];
+
+  if (options?.projectId) {
+    baseConstraints.push(where('projectId', '==', options.projectId));
+  }
+
+  const q = query(
+    collection(db, SESSIONS_COLLECTION),
+    ...baseConstraints,
     orderBy('startAt', 'desc'),
     limit(options?.limit ?? MAX_SESSIONS_LIMIT)
   );
@@ -197,14 +228,84 @@ export const getSessionsByDate = async (
 };
 
 /**
+ * 特定の日付のセッション一覧をページネーション付きで取得（アーカイブ済みを除外）
+ *
+ * 日付フィルタがあるため全件取得し、クライアント側でページネーションを適用
+ * （1日あたりのセッション数は限定的なため、この方式を採用）
+ *
+ * @param userId ユーザーID
+ * @param date 取得する日付
+ * @param page ページ番号（1始まり）
+ * @param options オプション（projectIdでプロジェクトフィルタ）
+ * @returns ページネーション付きセッション結果
+ */
+export const getSessionsByDatePaginated = async (
+  userId: string,
+  date: Date,
+  page: number = 1,
+  options?: { projectId?: string }
+): Promise<PaginatedSessionsResult> => {
+  const dayStart = startOfDay(date);
+  const dayEnd = endOfDay(date);
+
+  // 日付フィルタがあるため、その日の全セッションを取得
+  // （1日あたり数百件を超えることは稀なため全件取得が効率的）
+  const baseConstraints = [
+    where('userId', '==', userId),
+    where('isArchived', '==', false),
+    where('startAt', '>=', Timestamp.fromDate(dayStart)),
+    where('startAt', '<=', Timestamp.fromDate(dayEnd)),
+  ];
+
+  if (options?.projectId) {
+    baseConstraints.push(where('projectId', '==', options.projectId));
+  }
+
+  const q = query(
+    collection(db, SESSIONS_COLLECTION),
+    ...baseConstraints,
+    orderBy('startAt', 'desc')
+  );
+
+  const snapshot = await getDocs(q);
+  const allSessions = snapshot.docs.map((doc) =>
+    toSession(doc.id, doc.data() as SessionDocument)
+  );
+
+  const totalCount = allSessions.length;
+  const totalPages = Math.max(1, Math.ceil(totalCount / PAGE_SIZE));
+  const currentPage = Math.max(1, Math.min(page, totalPages));
+
+  // ページネーション適用
+  const startIndex = (currentPage - 1) * PAGE_SIZE;
+  const endIndex = startIndex + PAGE_SIZE;
+  const sessions = allSessions.slice(startIndex, endIndex);
+
+  return {
+    sessions,
+    totalCount,
+    currentPage,
+    totalPages,
+    hasNextPage: currentPage < totalPages,
+    hasPrevPage: currentPage > 1,
+  };
+};
+
+/**
  * 期間内のセッション一覧を取得（アーカイブ済みを除外）
+ *
+ * 日付跨ぎ・複数日跨ぎセッションを正しく取得するため、以下の3つのクエリを実行してマージする：
+ * 1. startAt が期間内のセッション
+ * 2. endAt が期間内のセッション（startAt が期間より前）
+ * 3. 期間を完全に跨ぐセッション（startAt < periodStart かつ endAt > periodEnd）
  */
 export const getSessionsByPeriod = async (
   userId: string,
   startDate: Date,
   endDate: Date
 ): Promise<Session[]> => {
-  const q = query(
+  // クエリ1: startAt が期間内のセッション
+  const qByStart = query(
     collection(db, SESSIONS_COLLECTION),
     where('userId', '==', userId),
     where('isArchived', '==', false),
@@ -213,11 +314,69 @@ export const getSessionsByPeriod = async (
     orderBy('startAt', 'desc')
   );
 
-  const snapshot = await getDocs(q);
-
-  return snapshot.docs.map((doc) =>
-    toSession(doc.id, doc.data() as SessionDocument)
+  // クエリ2: endAt が期間内のセッション（日付跨ぎ対応）
+  // ソート順はasc（既存インデックスに合わせる。マージ後に再ソートするため順序は問わない）
+  const qByEnd = query(
+    collection(db, SESSIONS_COLLECTION),
+    where('userId', '==', userId),
+    where('isArchived', '==', false),
+    where('endAt', '>=', Timestamp.fromDate(startDate)),
+    where('endAt', '<=', Timestamp.fromDate(endDate)),
+    orderBy('endAt', 'asc')
   );
+
+  // クエリ3: 期間を完全に跨ぐセッション（複数日跨ぎ対応）
+  // Firestoreの制約（2フィールドに対する範囲クエリ不可）を回避するため、
+  // startAt が期間開始日の30日前〜期間開始日より前のセッションを取得し、
+  // クライアント側で endAt > periodEnd をフィルタ
+  const thirtyDaysBeforeStart = subDays(startDate, 30);
+  const qSpanning = query(
+    collection(db, SESSIONS_COLLECTION),
+    where('userId', '==', userId),
+    where('isArchived', '==', false),
+    where('startAt', '>=', Timestamp.fromDate(thirtyDaysBeforeStart)),
+    where('startAt', '<', Timestamp.fromDate(startDate)),
+    orderBy('startAt', 'desc')
+  );
+
+  // 3つのクエリを並列実行
+  const [snapshotByStart, snapshotByEnd, snapshotSpanning] = await Promise.all([
+    getDocs(qByStart),
+    getDocs(qByEnd),
+    getDocs(qSpanning),
+  ]);
+
+  // 結果をマージ（重複を除去）
+  const sessionMap = new Map<string, Session>();
+
+  for (const doc of snapshotByStart.docs) {
+    const session = toSession(doc.id, doc.data() as SessionDocument);
+    sessionMap.set(doc.id, session);
+  }
+
+  for (const doc of snapshotByEnd.docs) {
+    if (!sessionMap.has(doc.id)) {
+      const session = toSession(doc.id, doc.data() as SessionDocument);
+      sessionMap.set(doc.id, session);
+    }
+  }
+
+  // 期間を完全に跨ぐセッションのみ追加（endAt > periodEnd）
+  for (const doc of snapshotSpanning.docs) {
+    if (!sessionMap.has(doc.id)) {
+      const session = toSession(doc.id, doc.data() as SessionDocument);
+      // endAt が期間終了より後のもののみ追加（期間を完全に跨ぐ）
+      if (session.endAt > endDate) {
+        sessionMap.set(doc.id, session);
+      }
+    }
+  }
+
+  // startAt の降順でソート
+  const sessions = Array.from(sessionMap.values());
+  sessions.sort((a, b) => b.startAt.getTime() - a.startAt.getTime());
+
+  return sessions;
 };
 
 /**

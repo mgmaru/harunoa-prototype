@@ -12,7 +12,7 @@ vi.mock('@/lib/firebase/config', () => ({
 
 // Firebase sessionsサービスのモック
 vi.mock('@/services/sessions', () => ({
-  getSessionsByDate: vi.fn(),
+  getSessionsByDatePaginated: vi.fn(),
   updateSession: vi.fn(),
   deleteSession: vi.fn(),
   getSession: vi.fn(),
@@ -54,6 +54,15 @@ const mockSessions: Session[] = [
   },
 ];
 
+const mockPaginatedResult = {
+  sessions: mockSessions,
+  totalCount: 2,
+  currentPage: 1,
+  totalPages: 1,
+  hasNextPage: false,
+  hasPrevPage: false,
+};
+
 describe('useSessions', () => {
   const testDate = new Date('2026-01-21');
 
@@ -66,7 +75,7 @@ describe('useSessions', () => {
       signIn: vi.fn(),
       signOut: vi.fn(),
     });
-    vi.mocked(sessionService.getSessionsByDate).mockResolvedValue(mockSessions);
+    vi.mocked(sessionService.getSessionsByDatePaginated).mockResolvedValue(mockPaginatedResult);
   });
 
   afterEach(() => {
@@ -85,11 +94,28 @@ describe('useSessions', () => {
 
     expect(result.current.sessions).toEqual(mockSessions);
     expect(result.current.error).toBeNull();
-    expect(sessionService.getSessionsByDate).toHaveBeenCalledWith(
+    expect(sessionService.getSessionsByDatePaginated).toHaveBeenCalledWith(
       'test-uid',
       testDate,
-      { limit: undefined }
+      1,
+      { projectId: undefined }
     );
+  });
+
+  it('ページネーション情報が正しく返される', async () => {
+    const { result } = renderHook(() => useSessions(testDate));
+
+    await waitFor(() => {
+      expect(result.current.isLoading).toBe(false);
+    });
+
+    expect(result.current.pagination).toEqual({
+      currentPage: 1,
+      totalPages: 1,
+      totalCount: 2,
+      hasNextPage: false,
+      hasPrevPage: false,
+    });
   });
 
   it('ユーザーが未認証の場合はセッションを取得しない', async () => {
@@ -108,12 +134,12 @@ describe('useSessions', () => {
     });
 
     expect(result.current.sessions).toEqual([]);
-    expect(sessionService.getSessionsByDate).not.toHaveBeenCalled();
+    expect(sessionService.getSessionsByDatePaginated).not.toHaveBeenCalled();
   });
 
   it('セッション取得に失敗した場合はエラー状態になる', async () => {
     const errorMessage = 'ネットワークエラー';
-    vi.mocked(sessionService.getSessionsByDate).mockRejectedValue(
+    vi.mocked(sessionService.getSessionsByDatePaginated).mockRejectedValue(
       new Error(errorMessage)
     );
 
@@ -138,19 +164,20 @@ describe('useSessions', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    expect(sessionService.getSessionsByDate).toHaveBeenCalledTimes(1);
+    expect(sessionService.getSessionsByDatePaginated).toHaveBeenCalledTimes(1);
 
     const newDate = new Date('2026-01-22');
     rerender({ date: newDate });
 
     await waitFor(() => {
-      expect(sessionService.getSessionsByDate).toHaveBeenCalledTimes(2);
+      expect(sessionService.getSessionsByDatePaginated).toHaveBeenCalledTimes(2);
     });
 
-    expect(sessionService.getSessionsByDate).toHaveBeenLastCalledWith(
+    expect(sessionService.getSessionsByDatePaginated).toHaveBeenLastCalledWith(
       'test-uid',
       newDate,
-      { limit: undefined }
+      1,
+      { projectId: undefined }
     );
   });
 
@@ -184,6 +211,17 @@ describe('useSessions', () => {
 
   it('removeを呼び出すとセッションが一覧から削除される', async () => {
     vi.mocked(sessionService.deleteSession).mockResolvedValue(undefined);
+    // 削除後は再取得が走るので、空の結果を返すようにモック
+    vi.mocked(sessionService.getSessionsByDatePaginated)
+      .mockResolvedValueOnce(mockPaginatedResult)
+      .mockResolvedValueOnce({
+        sessions: mockSessions.filter((s) => s.id !== 'session-1'),
+        totalCount: 1,
+        currentPage: 1,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPrevPage: false,
+      });
 
     const { result } = renderHook(() => useSessions(testDate));
 
@@ -191,14 +229,11 @@ describe('useSessions', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    const initialLength = result.current.sessions.length;
-
     await act(async () => {
       await result.current.remove('session-1');
     });
 
     expect(sessionService.deleteSession).toHaveBeenCalledWith('session-1');
-    expect(result.current.sessions.length).toBe(initialLength - 1);
     expect(
       result.current.sessions.find((s) => s.id === 'session-1')
     ).toBeUndefined();
@@ -212,24 +247,122 @@ describe('useSessions', () => {
     });
 
     // 初回のfetch
-    expect(sessionService.getSessionsByDate).toHaveBeenCalledTimes(1);
+    expect(sessionService.getSessionsByDatePaginated).toHaveBeenCalledTimes(1);
 
     await act(async () => {
       await result.current.refresh();
     });
 
     // refreshで再度fetch
-    expect(sessionService.getSessionsByDate).toHaveBeenCalledTimes(2);
+    expect(sessionService.getSessionsByDatePaginated).toHaveBeenCalledTimes(2);
   });
 
-  it('limitオプションを渡すとサービスに渡される', async () => {
-    renderHook(() => useSessions(testDate, { limit: 10 }));
+  it('projectIdオプションを渡すとサービスに渡される', async () => {
+    renderHook(() => useSessions(testDate, { projectId: 'project-1' }));
 
     await waitFor(() => {
-      expect(sessionService.getSessionsByDate).toHaveBeenCalledWith(
+      expect(sessionService.getSessionsByDatePaginated).toHaveBeenCalledWith(
         'test-uid',
         testDate,
-        { limit: 10 }
+        1,
+        { projectId: 'project-1' }
+      );
+    });
+  });
+
+  describe('ページネーション操作', () => {
+    const multiPageResult = {
+      sessions: mockSessions,
+      totalCount: 100,
+      currentPage: 1,
+      totalPages: 2,
+      hasNextPage: true,
+      hasPrevPage: false,
+    };
+
+    const secondPageResult = {
+      sessions: [mockSessions[0]],
+      totalCount: 100,
+      currentPage: 2,
+      totalPages: 2,
+      hasNextPage: false,
+      hasPrevPage: true,
+    };
+
+    it('goToNextPageを呼び出すと次のページのデータを取得する', async () => {
+      vi.mocked(sessionService.getSessionsByDatePaginated)
+        .mockResolvedValueOnce(multiPageResult)
+        .mockResolvedValueOnce(secondPageResult);
+
+      const { result } = renderHook(() => useSessions(testDate));
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      expect(result.current.pagination.hasNextPage).toBe(true);
+
+      await act(async () => {
+        result.current.goToNextPage();
+      });
+
+      await waitFor(() => {
+        expect(result.current.pagination.currentPage).toBe(2);
+      });
+
+      expect(sessionService.getSessionsByDatePaginated).toHaveBeenLastCalledWith(
+        'test-uid',
+        testDate,
+        2,
+        { projectId: undefined }
+      );
+    });
+
+    it('goToPrevPageを呼び出すと前のページのデータを取得する', async () => {
+      vi.mocked(sessionService.getSessionsByDatePaginated)
+        .mockResolvedValueOnce(secondPageResult)
+        .mockResolvedValueOnce(multiPageResult);
+
+      const { result } = renderHook(() => useSessions(testDate));
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.pagination.hasPrevPage).toBe(true);
+      });
+
+      await act(async () => {
+        result.current.goToPrevPage();
+      });
+
+      await waitFor(() => {
+        expect(result.current.pagination.currentPage).toBe(1);
+      });
+    });
+
+    it('goToPageを呼び出すと指定したページのデータを取得する', async () => {
+      vi.mocked(sessionService.getSessionsByDatePaginated)
+        .mockResolvedValueOnce(multiPageResult)
+        .mockResolvedValueOnce(secondPageResult);
+
+      const { result } = renderHook(() => useSessions(testDate));
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      await act(async () => {
+        result.current.goToPage(2);
+      });
+
+      await waitFor(() => {
+        expect(result.current.pagination.currentPage).toBe(2);
+      });
+
+      expect(sessionService.getSessionsByDatePaginated).toHaveBeenLastCalledWith(
+        'test-uid',
+        testDate,
+        2,
+        { projectId: undefined }
       );
     });
   });
