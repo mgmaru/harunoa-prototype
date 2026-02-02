@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { useSessionArchive } from '@/hooks/useSessionArchive';
 import { Header, TabBar } from '@/components/layout/Header';
 import { BarChart, PieChart } from '@/components/features/analytics';
 import { formatDuration } from '@/lib/date/format';
@@ -26,6 +28,13 @@ export default function AnalyticsPage() {
     goToNext,
     goToToday,
   } = useAnalytics();
+
+  const { runArchive } = useSessionArchive();
+
+  // 集計画面表示時にもアーカイブを実行（ログイン後時間が経っている場合に対応）
+  useEffect(() => {
+    runArchive();
+  }, [runArchive]);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20 md:pb-6">

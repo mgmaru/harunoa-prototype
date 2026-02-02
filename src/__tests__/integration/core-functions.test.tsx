@@ -101,6 +101,7 @@ vi.mock('@/services/sessions', () => ({
   getSessionsByProject: vi.fn().mockResolvedValue([]),
   updateSession: vi.fn(),
   deleteSession: vi.fn(),
+  archiveOldSessions: vi.fn().mockResolvedValue({ archivedCount: 0 }),
 }));
 
 // ===== プリセットサービスモック =====

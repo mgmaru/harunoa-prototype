@@ -107,6 +107,7 @@ vi.mock('@/services/sessions', () => ({
   deleteSession: (...args: unknown[]) => mockDeleteSession(...args),
   getAllSessions: (...args: unknown[]) => mockGetAllSessions(...args),
   getArchivedSessions: (...args: unknown[]) => mockGetArchivedSessions(...args),
+  archiveOldSessions: vi.fn().mockResolvedValue({ archivedCount: 0 }),
 }));
 
 // ===== 設定サービスモック =====

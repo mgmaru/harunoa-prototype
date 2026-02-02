@@ -12,8 +12,9 @@ import {
   limit,
   serverTimestamp,
   Timestamp,
+  writeBatch,
 } from 'firebase/firestore';
-import { startOfDay, endOfDay } from 'date-fns';
+import { startOfDay, endOfDay, subYears } from 'date-fns';
 import { db } from '@/lib/firebase/config';
 import { Session, CreateSessionInput, UpdateSessionInput } from '@/types/session';
 
@@ -92,12 +93,13 @@ export const createSession = async (
 };
 
 /**
- * ユーザーのセッション一覧を取得（新しい順）
+ * ユーザーのセッション一覧を取得（新しい順、アーカイブ済みを除外）
  */
 export const getSessions = async (userId: string): Promise<Session[]> => {
   const q = query(
     collection(db, SESSIONS_COLLECTION),
     where('userId', '==', userId),
+    where('isArchived', '==', false),
     orderBy('startAt', 'desc'),
     limit(MAX_SESSIONS_LIMIT)
   );
@@ -109,7 +111,7 @@ export const getSessions = async (userId: string): Promise<Session[]> => {
 };
 
 /**
- * 特定プロジェクトのセッション一覧を取得
+ * 特定プロジェクトのセッション一覧を取得（アーカイブ済みを除外）
  */
 export const getSessionsByProject = async (
   userId: string,
@@ -119,6 +121,7 @@ export const getSessionsByProject = async (
     collection(db, SESSIONS_COLLECTION),
     where('userId', '==', userId),
     where('projectId', '==', projectId),
+    where('isArchived', '==', false),
     orderBy('startAt', 'desc'),
     limit(MAX_SESSIONS_LIMIT)
   );
@@ -164,7 +167,7 @@ export const deleteSession = async (sessionId: string): Promise<void> => {
 };
 
 /**
- * 特定の日付のセッション一覧を取得
+ * 特定の日付のセッション一覧を取得（アーカイブ済みを除外）
  *
  * その日に開始されたセッションを取得する（日付跨ぎのセッションは開始日で取得）
  */
@@ -179,6 +182,7 @@ export const getSessionsByDate = async (
   const q = query(
     collection(db, SESSIONS_COLLECTION),
     where('userId', '==', userId),
+    where('isArchived', '==', false),
     where('startAt', '>=', Timestamp.fromDate(dayStart)),
     where('startAt', '<=', Timestamp.fromDate(dayEnd)),
     orderBy('startAt', 'desc'),
@@ -193,7 +197,7 @@ export const getSessionsByDate = async (
 };
 
 /**
- * 期間内のセッション一覧を取得
+ * 期間内のセッション一覧を取得（アーカイブ済みを除外）
  */
 export const getSessionsByPeriod = async (
   userId: string,
@@ -203,6 +207,7 @@ export const getSessionsByPeriod = async (
   const q = query(
     collection(db, SESSIONS_COLLECTION),
     where('userId', '==', userId),
+    where('isArchived', '==', false),
     where('startAt', '>=', Timestamp.fromDate(startDate)),
     where('startAt', '<=', Timestamp.fromDate(endDate)),
     orderBy('startAt', 'desc')
@@ -262,4 +267,50 @@ export const getAllSessions = async (userId: string): Promise<Session[]> => {
   return snapshot.docs.map((docSnap) =>
     toSession(docSnap.id, docSnap.data() as SessionDocument)
   );
+};
+
+/**
+ * 1年以上経過したセッションをアーカイブする
+ * @param userId ユーザーID
+ * @returns アーカイブした件数
+ */
+export const archiveOldSessions = async (
+  userId: string
+): Promise<{ archivedCount: number }> => {
+  const oneYearAgo = subYears(new Date(), 1);
+
+  // 1年以上前に終了した、未アーカイブのセッションを取得
+  const q = query(
+    collection(db, SESSIONS_COLLECTION),
+    where('userId', '==', userId),
+    where('isArchived', '==', false),
+    where('endAt', '<=', Timestamp.fromDate(oneYearAgo))
+  );
+
+  const snapshot = await getDocs(q);
+
+  if (snapshot.empty) {
+    return { archivedCount: 0 };
+  }
+
+  // バッチ更新（Firestoreは1バッチ500件まで）
+  const batchSize = 500;
+  let archivedCount = 0;
+
+  for (let i = 0; i < snapshot.docs.length; i += batchSize) {
+    const batch = writeBatch(db);
+    const chunk = snapshot.docs.slice(i, i + batchSize);
+
+    for (const docSnap of chunk) {
+      batch.update(docSnap.ref, {
+        isArchived: true,
+        archivedAt: Timestamp.now(),
+      });
+    }
+
+    await batch.commit();
+    archivedCount += chunk.length;
+  }
+
+  return { archivedCount };
 };
