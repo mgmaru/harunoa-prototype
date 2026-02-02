@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { saveRedirectPath } from '@/lib/auth/redirect';
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
+import { ToastContainer } from '@/components/ui/Toast';
 
 export default function AuthLayout({
   children,
@@ -37,6 +38,7 @@ export default function AuthLayout({
 
   return (
     <>
+      <ToastContainer />
       <OfflineBanner />
       {children}
     </>

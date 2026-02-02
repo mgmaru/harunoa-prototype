@@ -1,8 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useAuth } from '../useAuth';
-import { useAuthStore } from '@/stores/authStore';
 import type { User } from 'firebase/auth';
+
+// Firebase configをモック（@/services/authより先にモックする）
+vi.mock('@/lib/firebase/config', () => ({
+  app: {},
+  auth: {},
+  db: {},
+}));
 
 // Firebase authサービスのモック
 vi.mock('@/services/auth', () => ({
@@ -15,7 +20,14 @@ vi.mock('@/services/auth', () => ({
   }),
 }));
 
-// モックをインポート
+// presetsサービスをモック
+vi.mock('@/services/presets', () => ({
+  ensureDefaultPreset: vi.fn().mockResolvedValue(undefined),
+}));
+
+// モックの後にインポート
+import { useAuth } from '../useAuth';
+import { useAuthStore } from '@/stores/authStore';
 import * as authService from '@/services/auth';
 
 const mockUser: Partial<User> = {

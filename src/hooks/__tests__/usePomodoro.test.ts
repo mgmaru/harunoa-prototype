@@ -8,15 +8,14 @@ vi.mock('@/lib/firebase/config', () => ({
   db: {},
 }));
 
-// useSettingsをモック
-vi.mock('../useSettings', () => ({
-  useSettings: () => ({
-    settings: {
-      soundEnabled: false,
-      browserNotificationEnabled: false,
-    },
-    isLoading: false,
-    error: null,
+// useNotificationをモック
+vi.mock('../useNotification', () => ({
+  useNotification: () => ({
+    notify: vi.fn(),
+    playSound: vi.fn(),
+    requestPermission: vi.fn(),
+    sendBrowserNotification: vi.fn(),
+    showInAppNotification: vi.fn(),
   }),
 }));
 

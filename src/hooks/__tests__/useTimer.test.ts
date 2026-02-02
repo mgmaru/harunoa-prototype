@@ -39,6 +39,29 @@ vi.mock('@/stores/timerStore', () => ({
   useTimerStore: () => mockTimerStore,
 }));
 
+// usePomodoroをモック
+const mockPomodoro = {
+  phase: 'idle' as 'idle' | 'focus' | 'break',
+  remainingMs: 0,
+  isEnabled: false,
+  focusDurationMinutes: 25,
+  breakDurationMinutes: 5,
+  presetId: null,
+  setPreset: vi.fn(),
+  startFocus: vi.fn(),
+  skipBreak: vi.fn(),
+  stop: vi.fn(),
+  startWithTimer: vi.fn(),
+  stopWithTimer: vi.fn(),
+  isFocus: false,
+  isBreak: false,
+  isIdle: true,
+};
+
+vi.mock('../usePomodoro', () => ({
+  usePomodoro: () => mockPomodoro,
+}));
+
 import { useTimer } from '../useTimer';
 import * as sessionService from '@/services/sessions';
 import { useAuth } from '../useAuth';

@@ -34,6 +34,34 @@ vi.mock('firebase/firestore', () => ({
   },
 }));
 
+vi.mock('firebase/auth', () => ({
+  signInWithPopup: vi.fn(),
+  GoogleAuthProvider: vi.fn(),
+  signOut: vi.fn(),
+  onAuthStateChanged: vi.fn(() => vi.fn()),
+}));
+
+// ===== usePomodoroモック（通知機能の依存関係を分離）=====
+vi.mock('@/hooks/usePomodoro', () => ({
+  usePomodoro: () => ({
+    phase: 'idle',
+    remainingMs: 0,
+    isEnabled: false,
+    focusDurationMinutes: 25,
+    breakDurationMinutes: 5,
+    presetId: null,
+    setPreset: vi.fn(),
+    startFocus: vi.fn(),
+    skipBreak: vi.fn(),
+    stop: vi.fn(),
+    startWithTimer: vi.fn(),
+    stopWithTimer: vi.fn(),
+    isFocus: false,
+    isBreak: false,
+    isIdle: true,
+  }),
+}));
+
 // ===== 認証サービスモック =====
 const mockOnAuthStateChanged = vi.fn();
 const mockSignInWithGoogle = vi.fn();

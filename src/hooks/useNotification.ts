@@ -1,7 +1,10 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useSettings } from './useSettings';
+import { usePresets } from './usePresets';
+import { useToastStore } from '@/stores/toastStore';
+import { NotificationSound } from '@/types/preset';
 
 type NotificationOptions = {
   title: string;
@@ -10,17 +13,24 @@ type NotificationOptions = {
 };
 
 /**
- * 簡易通知フック（Phase 10で本格実装に差し替え予定）
+ * 通知フック
  *
- * 現時点では以下の機能を提供：
+ * 以下の機能を提供：
+ * - 通知音の再生（プリセット設定に基づく）
  * - ブラウザ Notification API を使用した通知
- * - console.log によるログ出力
+ * - アプリ内トースト通知（フォールバック）
  */
 export const useNotification = () => {
   const { settings } = useSettings();
+  const { activePreset } = usePresets();
+  const { addToast } = useToastStore();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  /**
+   * ブラウザ通知の許可をリクエスト
+   */
   const requestPermission = useCallback(async (): Promise<boolean> => {
-    if (!('Notification' in window)) {
+    if (typeof window === 'undefined' || !('Notification' in window)) {
       console.warn('This browser does not support notifications');
       return false;
     }
@@ -37,34 +47,109 @@ export const useNotification = () => {
     return permission === 'granted';
   }, []);
 
+  /**
+   * 通知音を再生
+   */
+  const playSound = useCallback(
+    (soundType: 'focus' | 'break') => {
+      if (!settings?.soundEnabled) return;
+
+      // アクティブなプリセットから音を取得
+      const soundName: NotificationSound | undefined =
+        soundType === 'focus'
+          ? activePreset?.focusEndSound
+          : activePreset?.breakEndSound;
+
+      if (!soundName || soundName === 'none') return;
+
+      const soundFile = `/sounds/${soundName}.mp3`;
+
+      // 前の音声を停止
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+
+      audioRef.current = new Audio(soundFile);
+      audioRef.current.play().catch((e) => {
+        console.warn('Audio playback failed:', e);
+      });
+    },
+    [settings?.soundEnabled, activePreset]
+  );
+
+  /**
+   * ブラウザ通知を送信
+   */
+  const sendBrowserNotification = useCallback(
+    async (title: string, message: string): Promise<boolean> => {
+      if (!settings?.browserNotificationEnabled) return false;
+
+      const hasPermission = await requestPermission();
+      if (hasPermission) {
+        new Notification(title, {
+          body: message,
+          icon: '/icon-192x192.png',
+          tag: 'harunoa-pomodoro',
+        });
+        return true;
+      }
+      return false;
+    },
+    [settings?.browserNotificationEnabled, requestPermission]
+  );
+
+  /**
+   * アプリ内通知（トースト）を表示
+   */
+  const showInAppNotification = useCallback(
+    (title: string, message: string) => {
+      addToast({
+        type: 'info',
+        title,
+        message,
+        duration: 5000,
+      });
+    },
+    [addToast]
+  );
+
+  /**
+   * 統合通知関数
+   * 設定に応じて通知音、ブラウザ通知、アプリ内通知を実行
+   */
   const notify = useCallback(
     async ({ title, message, sound }: NotificationOptions) => {
-      // ログ出力（デバッグ用）
-      console.log(`[Notification] ${title}: ${message}`);
+      // 通知音を再生
+      if (sound) {
+        playSound(sound);
+      }
 
       // ブラウザ通知
       if (settings?.browserNotificationEnabled) {
-        const hasPermission = await requestPermission();
-        if (hasPermission) {
-          new Notification(title, {
-            body: message,
-            icon: '/icon-192x192.png',
-          });
+        const sent = await sendBrowserNotification(title, message);
+        // ブラウザ通知が送信できなかった場合はアプリ内通知
+        if (!sent) {
+          showInAppNotification(title, message);
         }
-      }
-
-      // 通知音（Phase 10で実装予定）
-      // 現時点ではスタブとしてログ出力のみ
-      if (settings?.soundEnabled && sound) {
-        console.log(`[Sound] Playing ${sound} sound`);
-        // TODO: Phase 10で音声ファイルを再生する実装を追加
+      } else {
+        // ブラウザ通知がOFFの場合もアプリ内通知
+        showInAppNotification(title, message);
       }
     },
-    [settings?.browserNotificationEnabled, settings?.soundEnabled, requestPermission]
+    [
+      settings?.browserNotificationEnabled,
+      playSound,
+      sendBrowserNotification,
+      showInAppNotification,
+    ]
   );
 
   return {
     notify,
+    playSound,
     requestPermission,
+    sendBrowserNotification,
+    showInAppNotification,
   };
 };
