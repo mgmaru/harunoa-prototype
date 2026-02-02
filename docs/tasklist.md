@@ -149,15 +149,15 @@
 
 ## Phase 10: 通知機能（09_notification.md）
 
-- [x] 通知フック（src/hooks/useNotification.ts）※Phase 9で簡易版を先行実装済み
-- [ ] トーストストア（src/stores/toastStore.ts）
-- [ ] トーストコンポーネント（src/components/ui/Toast.tsx）
-- [ ] 通知バナーコンポーネント
-- [ ] 通知設定コンポーネント
-- [ ] 通知音ファイル配置（public/sounds/）
-- [ ] レイアウトへの組み込み
-- [ ] アニメーション追加（globals.css）
-- [ ] 単体テスト作成（hooks/useNotification）
+- [x] 通知フック（src/hooks/useNotification.ts）※Phase 9で簡易版を先行実装済み → 本格実装に更新
+- [x] トーストストア（src/stores/toastStore.ts）
+- [x] トーストコンポーネント（src/components/ui/Toast.tsx）
+- [x] 通知バナーコンポーネント（src/components/features/focus/NotificationBanner.tsx）
+- [x] 通知設定コンポーネント（src/components/features/settings/NotificationSettings.tsx）
+- [x] 通知音ファイル配置（public/sounds/）※プレースホルダー＋README作成
+- [x] レイアウトへの組み込み（ToastContainer追加）
+- [x] アニメーション追加（globals.css）
+- [x] 単体テスト作成（hooks/useNotification, stores/toastStore）
 
 ---
 
