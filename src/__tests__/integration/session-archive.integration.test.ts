@@ -62,7 +62,7 @@ describe('セッション自動アーカイブ統合テスト - 7.2', () => {
           rules: getFirestoreRules(),
         },
       });
-    } catch (error) {
+    } catch {
       // Emulatorが起動していない場合はスキップ
       console.warn(
         'Firebase Emulator is not running. Skipping integration tests.'
