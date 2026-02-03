@@ -15,7 +15,19 @@ const SOUND_LABELS: Record<NotificationSound, string> = {
   chime: 'チャイム',
 };
 
+/** デフォルトプリセット名 */
+const DEFAULT_PRESET_NAME = 'デフォルト';
+
 export const PresetCard = ({ preset, onEdit, onDelete, onSetActive }: Props) => {
+  const isDefault = preset.name === DEFAULT_PRESET_NAME;
+  // デフォルトプリセットは削除不可、利用中プリセットは削除可能（警告ダイアログ表示）
+  const canDelete = !isDefault;
+
+  const getDeleteButtonTitle = () => {
+    if (isDefault) return 'デフォルトプリセットは削除できません';
+    return '';
+  };
+
   return (
     <div className="p-4 border border-gray-200 rounded-lg bg-white">
       <div className="flex items-start justify-between mb-2">
@@ -53,9 +65,9 @@ export const PresetCard = ({ preset, onEdit, onDelete, onSetActive }: Props) => 
         </button>
         <button
           onClick={onDelete}
-          disabled={preset.isActive}
+          disabled={!canDelete}
           className="px-3 py-1 text-sm text-red-600 hover:text-red-800 border border-red-300 rounded hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          title={preset.isActive ? '利用中のプリセットは削除できません' : ''}
+          title={getDeleteButtonTitle()}
         >
           削除
         </button>

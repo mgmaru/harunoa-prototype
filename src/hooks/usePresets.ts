@@ -7,6 +7,7 @@ import {
   createPreset,
   updatePreset,
   deletePreset,
+  deleteActivePresetAndSetDefault,
   setActivePreset,
   clearActivePreset,
 } from '@/services/presets';
@@ -66,14 +67,20 @@ export const usePresets = () => {
 
   const remove = useCallback(
     async (id: string): Promise<void> => {
+      if (!user) {
+        throw new Error('認証が必要です');
+      }
       const preset = presets.find((p) => p.id === id);
       if (preset?.isActive) {
-        throw new Error('利用中のプリセットは削除できません。別のプリセットを選択してから削除してください。');
+        // 利用中プリセット削除時はデフォルトプリセットを自動でアクティブに
+        await deleteActivePresetAndSetDefault(user.uid, id);
+        await fetchPresets();
+      } else {
+        await deletePreset(id);
+        setPresets((prev) => prev.filter((p) => p.id !== id));
       }
-      await deletePreset(id);
-      setPresets((prev) => prev.filter((p) => p.id !== id));
     },
-    [presets]
+    [user, presets, fetchPresets]
   );
 
   const setActive = useCallback(

@@ -79,9 +79,18 @@ export const usePomodoroStore = create<PomodoroState & PomodoroActions>()(
       },
 
       skipBreak: () => {
+        const { focusDurationMinutes, isEnabled } = get();
+        if (!isEnabled) {
+          set({
+            phase: 'idle',
+            remainingMs: 0,
+          });
+          return;
+        }
+        // 次の集中フェーズを開始
         set({
-          phase: 'idle',
-          remainingMs: 0,
+          phase: 'focus',
+          remainingMs: focusDurationMinutes * 60 * 1000,
         });
       },
 

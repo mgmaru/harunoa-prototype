@@ -55,13 +55,15 @@ export const usePomodoro = () => {
   }, [pomodoro.remainingMs, pomodoro.phase, notify]);
 
   // タイマー計測開始時にポモドーロも開始
+  // Zustandストアから直接最新の状態を取得することで、
+  // useCallbackの依存配列の問題を回避
   const startWithTimer = useCallback(() => {
-    if (pomodoro.isEnabled && pomodoro.phase === 'idle') {
+    const state = usePomodoroStore.getState();
+    if (state.isEnabled && state.phase === 'idle') {
       lastTickRef.current = Date.now();
-      pomodoro.startFocus();
+      state.startFocus();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pomodoro.isEnabled, pomodoro.phase]);
+  }, []);
 
   // タイマー停止時にポモドーロも停止
   const stopWithTimer = useCallback(() => {

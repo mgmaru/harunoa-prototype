@@ -139,6 +139,33 @@ export const deletePreset = async (presetId: string): Promise<void> => {
 };
 
 /**
+ * 利用中プリセットを削除し、デフォルトプリセットをアクティブに設定
+ * 利用中のプリセットを削除する場合はこの関数を使用する
+ */
+export const deleteActivePresetAndSetDefault = async (
+  userId: string,
+  presetId: string
+): Promise<void> => {
+  const presets = await getPresets(userId);
+  const defaultPreset = presets.find((p) => p.name === 'デフォルト');
+
+  const batch = writeBatch(db);
+
+  // 削除対象のプリセットを削除
+  batch.delete(doc(db, PRESETS_COLLECTION, presetId));
+
+  // デフォルトプリセットがあればアクティブに設定
+  if (defaultPreset && defaultPreset.id !== presetId) {
+    batch.update(doc(db, PRESETS_COLLECTION, defaultPreset.id), {
+      isActive: true,
+      updatedAt: serverTimestamp(),
+    });
+  }
+
+  await batch.commit();
+};
+
+/**
  * プリセットをアクティブに設定
  * 他のプリセットは非アクティブになる
  */

@@ -129,6 +129,7 @@ export default function PresetsPage() {
       <PresetDeleteModal
         isOpen={!!deletingPreset}
         presetName={deletingPreset?.name || ''}
+        isActive={deletingPreset?.isActive || false}
         onClose={() => setDeletingPreset(null)}
         onConfirm={handleDelete}
       />

@@ -16,6 +16,16 @@ const SOUND_OPTIONS: { value: NotificationSound; label: string }[] = [
   { value: 'chime', label: 'チャイム' },
 ];
 
+/** デフォルトプリセット名 */
+const DEFAULT_PRESET_NAME = 'デフォルト';
+
+/** テストモード判定（環境変数で切り替え） */
+const isTestMode = process.env.NEXT_PUBLIC_TEST_MODE === 'true';
+
+/** バリデーション値（テストモードでは緩和） */
+const MIN_FOCUS_TIME = isTestMode ? 1 : 25;
+const MIN_BREAK_TIME = isTestMode ? 1 : 5;
+
 export const PresetFormModal = ({ isOpen, preset, onClose, onSubmit }: Props) => {
   const [name, setName] = useState('');
   const [focusDurationMinutes, setFocusDurationMinutes] = useState(25);
@@ -26,6 +36,7 @@ export const PresetFormModal = ({ isOpen, preset, onClose, onSubmit }: Props) =>
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isEditing = !!preset;
+  const isDefaultPreset = preset?.name === DEFAULT_PRESET_NAME;
 
   // プリセット編集時は初期値を設定
   useEffect(() => {
@@ -52,12 +63,12 @@ export const PresetFormModal = ({ isOpen, preset, onClose, onSubmit }: Props) =>
       newErrors.name = 'プリセット名を入力してください';
     }
 
-    if (focusDurationMinutes < 25) {
-      newErrors.focusDurationMinutes = '集中時間は25分以上で設定してください';
+    if (focusDurationMinutes < MIN_FOCUS_TIME) {
+      newErrors.focusDurationMinutes = `集中時間は${MIN_FOCUS_TIME}分以上で設定してください`;
     }
 
-    if (breakDurationMinutes < 5) {
-      newErrors.breakDurationMinutes = '休憩時間は5分以上で設定してください';
+    if (breakDurationMinutes < MIN_BREAK_TIME) {
+      newErrors.breakDurationMinutes = `休憩時間は${MIN_BREAK_TIME}分以上で設定してください`;
     } else if (breakDurationMinutes > 10) {
       newErrors.breakDurationMinutes =
         '休憩時間は10分以内で設定してください。長い休憩はタイマーの停止・一時停止をご利用ください';
@@ -119,9 +130,13 @@ export const PresetFormModal = ({ isOpen, preset, onClose, onSubmit }: Props) =>
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              disabled={isDefaultPreset}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
               placeholder="例: デフォルト"
             />
+            {isDefaultPreset && (
+              <p className="mt-1 text-sm text-gray-500">デフォルトプリセットの名前は変更できません</p>
+            )}
             {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
           </div>
 
@@ -134,7 +149,7 @@ export const PresetFormModal = ({ isOpen, preset, onClose, onSubmit }: Props) =>
               <input
                 id="focus-duration"
                 type="number"
-                min={25}
+                min={MIN_FOCUS_TIME}
                 max={120}
                 value={focusDurationMinutes}
                 onChange={(e) => setFocusDurationMinutes(Number(e.target.value))}
@@ -142,7 +157,7 @@ export const PresetFormModal = ({ isOpen, preset, onClose, onSubmit }: Props) =>
               />
               <span className="text-gray-600">分</span>
             </div>
-            <p className="mt-1 text-xs text-gray-500">※ 25分以上で設定してください</p>
+            <p className="mt-1 text-xs text-gray-500">※ {MIN_FOCUS_TIME}分以上で設定してください</p>
             {errors.focusDurationMinutes && (
               <p className="mt-1 text-sm text-red-500">{errors.focusDurationMinutes}</p>
             )}
@@ -157,7 +172,7 @@ export const PresetFormModal = ({ isOpen, preset, onClose, onSubmit }: Props) =>
               <input
                 id="break-duration"
                 type="number"
-                min={5}
+                min={MIN_BREAK_TIME}
                 max={10}
                 value={breakDurationMinutes}
                 onChange={(e) => setBreakDurationMinutes(Number(e.target.value))}
@@ -165,7 +180,7 @@ export const PresetFormModal = ({ isOpen, preset, onClose, onSubmit }: Props) =>
               />
               <span className="text-gray-600">分</span>
             </div>
-            <p className="mt-1 text-xs text-gray-500">※ 5〜10分で設定してください</p>
+            <p className="mt-1 text-xs text-gray-500">※ {MIN_BREAK_TIME}〜10分で設定してください</p>
             {errors.breakDurationMinutes && (
               <p className="mt-1 text-sm text-red-500">{errors.breakDurationMinutes}</p>
             )}

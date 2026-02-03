@@ -5,11 +5,12 @@ import { useState } from 'react';
 type Props = {
   isOpen: boolean;
   presetName: string;
+  isActive?: boolean;
   onClose: () => void;
   onConfirm: () => Promise<void>;
 };
 
-export const PresetDeleteModal = ({ isOpen, presetName, onClose, onConfirm }: Props) => {
+export const PresetDeleteModal = ({ isOpen, presetName, isActive = false, onClose, onConfirm }: Props) => {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
@@ -44,6 +45,13 @@ export const PresetDeleteModal = ({ isOpen, presetName, onClose, onConfirm }: Pr
         <div className="p-4">
           <p className="text-gray-700 mb-2">このプリセットを削除しますか？</p>
           <p className="font-medium text-gray-900 mb-4">「{presetName}」</p>
+          {isActive && (
+            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg mb-4">
+              <p className="text-sm text-yellow-800">
+                ⚠️ このプリセットは現在利用中です。削除すると「デフォルト」プリセットが自動的に利用中になります。
+              </p>
+            </div>
+          )}
           <p className="text-sm text-gray-500">※ この操作は取り消せません</p>
         </div>
 
