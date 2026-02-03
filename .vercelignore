@@ -1,0 +1,27 @@
+# Documentation
+docs/
+CLAUDE.md
+
+# Development tools
+.claude/
+.playwright-mcp/
+scripts/
+_local/
+
+# MCP configuration
+.mcp.json
+
+# Debug logs
+firebase-debug.log
+firestore-debug.log
+
+# Test files
+vitest.config.ts
+**/*.test.ts
+**/*.test.tsx
+**/tests/
+**/__tests__/
+
+# Markdown files (except README)
+*.md
+!README.md
