@@ -1,0 +1,168 @@
+rules_version = '2';
+
+/**
+ * HaruNoa Firestore セキュリティルール
+ *
+ * 基本方針:
+ * - 認証必須: すべての操作に認証が必要
+ * - ユーザー分離: 各ユーザーは自分のデータのみアクセス可能
+ * - 入力検証: 必須フィールドとデータ型を検証
+ */
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===== ヘルパー関数 =====
+
+    // 認証済みかどうか
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // リクエストしたユーザーがリソースの所有者かどうか
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // 新規作成時に自分のuserIdを設定しているか
+    function isCreatingOwnResource() {
+      return isAuthenticated() && request.resource.data.userId == request.auth.uid;
+    }
+
+    // 既存リソースの所有者かどうか
+    function isResourceOwner() {
+      return isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // userIdが変更されていないか
+    function userIdNotChanged() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+
+    // ===== users コレクション =====
+    // ユーザー情報（メールアドレス、表示名、最終ログイン日時）
+    match /users/{userId} {
+      // 読み取り: 自分のデータのみ
+      allow read: if isOwner(userId);
+
+      // 作成: 自分のデータのみ
+      allow create: if isOwner(userId)
+        && request.resource.data.keys().hasAll(['email', 'lastLoginAt']);
+
+      // 更新: 自分のデータのみ
+      allow update: if isOwner(userId);
+
+      // 削除: 禁止（アカウント削除は管理者APIで行う）
+      allow delete: if false;
+    }
+
+    // ===== projects コレクション =====
+    // プロジェクト（名前、色、アーカイブ状態）
+    match /projects/{projectId} {
+      // 読み取り: 自分のプロジェクトのみ
+      allow read: if isResourceOwner();
+
+      // 作成: 自分のuserIdを持つプロジェクトのみ
+      allow create: if isCreatingOwnResource()
+        && request.resource.data.keys().hasAll(['userId', 'name', 'color', 'isArchived', 'createdAt', 'updatedAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.color is string
+        && request.resource.data.isArchived is bool;
+
+      // 更新: 自分のプロジェクトのみ、userIdは変更不可
+      allow update: if isResourceOwner()
+        && userIdNotChanged()
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100;
+
+      // 削除: 自分のプロジェクトのみ
+      allow delete: if isResourceOwner();
+    }
+
+    // ===== sessions コレクション =====
+    // 作業セッション（開始時刻、終了時刻、メモ）
+    match /sessions/{sessionId} {
+      // 読み取り: 自分のセッションのみ
+      allow read: if isResourceOwner();
+
+      // 作成: 自分のuserIdを持つセッションのみ
+      allow create: if isCreatingOwnResource()
+        && request.resource.data.keys().hasAll(['userId', 'projectId', 'startAt', 'endAt', 'durationMs', 'memo', 'createdAt', 'updatedAt'])
+        && request.resource.data.projectId is string
+        && request.resource.data.durationMs is int
+        && request.resource.data.durationMs >= 0
+        && request.resource.data.memo is string
+        && request.resource.data.memo.size() <= 1000;
+
+      // 更新: 自分のセッションのみ、userIdは変更不可
+      allow update: if isResourceOwner()
+        && userIdNotChanged()
+        && request.resource.data.memo.size() <= 1000;
+
+      // 削除: 自分のセッションのみ
+      allow delete: if isResourceOwner();
+    }
+
+    // ===== settings コレクション =====
+    // ユーザー設定（通知設定、テーマなど）
+    match /settings/{userId} {
+      // 読み取り: 自分の設定のみ
+      allow read: if isOwner(userId);
+
+      // 作成・更新: 自分の設定のみ
+      allow create, update: if isOwner(userId);
+
+      // 削除: 禁止
+      allow delete: if false;
+    }
+
+    // ===== userSettings コレクション =====
+    // ユーザー設定（通知設定、テーマなど）- settings.tsで使用
+    match /userSettings/{userId} {
+      // 読み取り: 自分の設定のみ
+      allow read: if isOwner(userId);
+
+      // 作成・更新: 自分の設定のみ
+      allow create, update: if isOwner(userId);
+
+      // 削除: 禁止
+      allow delete: if false;
+    }
+
+    // ===== pomodoroPresets コレクション =====
+    // ポモドーロプリセット（集中時間、休憩時間など）
+    match /pomodoroPresets/{presetId} {
+      // 読み取り: 自分のプリセットのみ
+      allow read: if isResourceOwner();
+
+      // 作成: 自分のuserIdを持つプリセットのみ
+      allow create: if isCreatingOwnResource()
+        && request.resource.data.keys().hasAll(['userId', 'name', 'focusDurationMinutes', 'breakDurationMinutes', 'focusEndSound', 'breakEndSound', 'isActive', 'createdAt', 'updatedAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 50
+        && request.resource.data.focusDurationMinutes is int
+        && request.resource.data.focusDurationMinutes > 0
+        && request.resource.data.focusDurationMinutes <= 120
+        && request.resource.data.breakDurationMinutes is int
+        && request.resource.data.breakDurationMinutes > 0
+        && request.resource.data.breakDurationMinutes <= 60
+        && request.resource.data.isActive is bool;
+
+      // 更新: 自分のプリセットのみ、userIdは変更不可
+      allow update: if isResourceOwner()
+        && userIdNotChanged();
+
+      // 削除: 自分のプリセットのみ
+      allow delete: if isResourceOwner();
+    }
+
+    // ===== その他のコレクション =====
+    // 明示的に許可されていないコレクションへのアクセスは拒否
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
