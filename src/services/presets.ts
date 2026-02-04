@@ -39,6 +39,7 @@ const PRESETS_COLLECTION = 'pomodoroPresets';
 
 /**
  * Firestore DocumentからPomodoroPreset型に変換
+ * serverTimestamp()がまだ解決されていない場合（nullの場合）は現在時刻を使用
  */
 const toPreset = (id: string, data: PresetDocument): PomodoroPreset => ({
   id,
@@ -49,8 +50,8 @@ const toPreset = (id: string, data: PresetDocument): PomodoroPreset => ({
   focusEndSound: data.focusEndSound,
   breakEndSound: data.breakEndSound,
   isActive: data.isActive,
-  createdAt: data.createdAt.toDate(),
-  updatedAt: data.updatedAt.toDate(),
+  createdAt: data.createdAt?.toDate() ?? new Date(),
+  updatedAt: data.updatedAt?.toDate() ?? new Date(),
 });
 
 /**
