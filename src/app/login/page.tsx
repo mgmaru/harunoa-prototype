@@ -21,11 +21,7 @@ export default function LoginPage() {
       const redirectPath = getAndClearRedirectPath('/');
       router.push(redirectPath);
     } catch (e) {
-      // デバッグ用: エラー詳細をコンソールに出力
-      console.error('Login error:', e);
       if (e instanceof FirebaseError) {
-        console.error('Firebase error code:', e.code);
-        console.error('Firebase error message:', e.message);
         // ネットワークエラーの場合
         if (e.code === 'auth/network-request-failed') {
           setError(
