@@ -83,16 +83,20 @@ export default function SettingsPage() {
               type="button"
               onClick={handleSoundToggle}
               disabled={isUpdating}
-              className={`w-12 h-6 rounded-full relative transition-colors ${
-                settings?.soundEnabled ? 'bg-primary-600' : 'bg-gray-300'
-              } ${isUpdating ? 'opacity-50' : ''}`}
+              className={`flex items-center min-h-[44px] ${isUpdating ? 'opacity-50' : ''}`}
               aria-label={`通知音を${settings?.soundEnabled ? 'オフ' : 'オン'}にする`}
             >
               <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                  settings?.soundEnabled ? 'translate-x-6' : ''
+                className={`w-12 h-6 rounded-full relative transition-colors inline-block ${
+                  settings?.soundEnabled ? 'bg-primary-600' : 'bg-gray-300'
                 }`}
-              />
+              >
+                <span
+                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                    settings?.soundEnabled ? 'translate-x-6' : ''
+                  }`}
+                />
+              </span>
             </button>
           </div>
 
@@ -105,16 +109,20 @@ export default function SettingsPage() {
               type="button"
               onClick={handleNotificationToggle}
               disabled={isUpdating}
-              className={`w-12 h-6 rounded-full relative transition-colors ${
-                settings?.browserNotificationEnabled ? 'bg-primary-600' : 'bg-gray-300'
-              } ${isUpdating ? 'opacity-50' : ''}`}
+              className={`flex items-center min-h-[44px] ${isUpdating ? 'opacity-50' : ''}`}
               aria-label={`ブラウザ通知を${settings?.browserNotificationEnabled ? 'オフ' : 'オン'}にする`}
             >
               <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                  settings?.browserNotificationEnabled ? 'translate-x-6' : ''
+                className={`w-12 h-6 rounded-full relative transition-colors inline-block ${
+                  settings?.browserNotificationEnabled ? 'bg-primary-600' : 'bg-gray-300'
                 }`}
-              />
+              >
+                <span
+                  className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                    settings?.browserNotificationEnabled ? 'translate-x-6' : ''
+                  }`}
+                />
+              </span>
             </button>
           </div>
         </section>
