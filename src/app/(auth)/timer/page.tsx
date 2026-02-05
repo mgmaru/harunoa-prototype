@@ -186,7 +186,7 @@ export default function TimerPage() {
           )}
           <Link
             href="/presets"
-            className="text-primary-600 text-sm mt-2 inline-block hover:underline"
+            className="text-primary-600 text-sm mt-2 inline-flex items-center min-h-[44px] hover:underline"
           >
             プリセット管理 →
           </Link>

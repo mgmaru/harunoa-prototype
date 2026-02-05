@@ -57,7 +57,7 @@ export const Header = () => {
     <header className="bg-white border-b border-gray-200">
       <div className="max-w-4xl mx-auto px-4">
         <nav className="flex items-center justify-between h-14">
-          <Link href="/" className="text-xl font-bold text-primary-600">
+          <Link href="/" className="text-xl font-bold text-primary-600 min-h-[44px] flex items-center">
             HaruNoa
           </Link>
 
