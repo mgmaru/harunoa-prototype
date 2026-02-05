@@ -83,7 +83,7 @@ export default function HomePage() {
               key={p}
               onClick={() => setPeriod(p)}
               className={clsx(
-                'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                'px-4 py-2 rounded-lg text-sm font-medium transition-colors min-h-[44px]',
                 period === p
                   ? 'bg-primary-600 text-white'
                   : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'

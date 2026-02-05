@@ -54,7 +54,7 @@ export const ProjectCard = ({
         <Link
           href={`/timer?projectId=${project.id}`}
           className={clsx(
-            'ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium',
+            'ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium min-h-[44px]',
             'bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors'
           )}
         >

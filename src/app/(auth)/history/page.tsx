@@ -90,7 +90,7 @@ export default function HistoryPage() {
               type="button"
               onClick={() => setSelectedDate(q.date)}
               className={clsx(
-                'px-4 py-2 rounded-lg font-medium transition-colors',
+                'px-4 py-2 rounded-lg font-medium transition-colors min-h-[44px]',
                 isSelectedDate(q.date)
                   ? 'bg-primary-600 text-white'
                   : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
@@ -103,7 +103,7 @@ export default function HistoryPage() {
             type="date"
             value={format(selectedDate, 'yyyy-MM-dd')}
             onChange={handleDateChange}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="border border-gray-300 rounded-lg px-4 py-2 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             aria-label="日付を選択"
           />
         </div>
@@ -117,7 +117,7 @@ export default function HistoryPage() {
             id="project-filter"
             value={selectedProjectId}
             onChange={(e) => setSelectedProjectId(e.target.value)}
-            className="border border-gray-300 rounded-lg px-4 py-2 w-full max-w-xs focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="border border-gray-300 rounded-lg px-4 py-2 min-h-[44px] w-full max-w-xs focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           >
             <option value="">すべてのプロジェクト</option>
             {projects.map((project) => (
@@ -160,7 +160,7 @@ export default function HistoryPage() {
               onClick={goToPrevPage}
               disabled={!pagination.hasPrevPage}
               className={clsx(
-                'px-4 py-2 rounded-lg font-medium transition-colors',
+                'px-4 py-2 rounded-lg font-medium transition-colors min-h-[44px]',
                 pagination.hasPrevPage
                   ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
                   : 'bg-gray-100 text-gray-400 cursor-not-allowed'
@@ -177,7 +177,7 @@ export default function HistoryPage() {
               onClick={goToNextPage}
               disabled={!pagination.hasNextPage}
               className={clsx(
-                'px-4 py-2 rounded-lg font-medium transition-colors',
+                'px-4 py-2 rounded-lg font-medium transition-colors min-h-[44px]',
                 pagination.hasNextPage
                   ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
                   : 'bg-gray-100 text-gray-400 cursor-not-allowed'

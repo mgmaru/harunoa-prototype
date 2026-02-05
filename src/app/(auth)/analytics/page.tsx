@@ -52,7 +52,7 @@ export default function AnalyticsPage() {
                 key={p.value}
                 onClick={() => setPeriodType(p.value)}
                 className={clsx(
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors min-h-[44px]',
                   periodType === p.value
                     ? 'bg-primary-600 text-white'
                     : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
@@ -67,7 +67,7 @@ export default function AnalyticsPage() {
           <div className="flex items-center gap-2">
             <button
               onClick={goToPrevious}
-              className="px-3 py-2 border border-gray-200 rounded-lg bg-white text-gray-700 hover:bg-gray-50 transition-colors"
+              className="px-3 py-2 min-h-[44px] min-w-[44px] border border-gray-200 rounded-lg bg-white text-gray-700 hover:bg-gray-50 transition-colors"
               aria-label="前の期間へ"
             >
               ＜
@@ -75,14 +75,14 @@ export default function AnalyticsPage() {
             <span className="min-w-[140px] text-center font-medium">{label}</span>
             <button
               onClick={goToNext}
-              className="px-3 py-2 border border-gray-200 rounded-lg bg-white text-gray-700 hover:bg-gray-50 transition-colors"
+              className="px-3 py-2 min-h-[44px] min-w-[44px] border border-gray-200 rounded-lg bg-white text-gray-700 hover:bg-gray-50 transition-colors"
               aria-label="次の期間へ"
             >
               ＞
             </button>
             <button
               onClick={goToToday}
-              className="px-3 py-2 border border-gray-200 rounded-lg bg-white text-gray-700 hover:bg-gray-50 transition-colors text-sm"
+              className="px-3 py-2 min-h-[44px] border border-gray-200 rounded-lg bg-white text-gray-700 hover:bg-gray-50 transition-colors text-sm"
             >
               今日
             </button>

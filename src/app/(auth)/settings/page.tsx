@@ -77,7 +77,7 @@ export default function SettingsPage() {
         <section className="bg-white rounded-lg p-4 mb-4 shadow-sm">
           <h2 className="font-semibold mb-4">通知設定</h2>
 
-          <div className="flex justify-between items-center py-2">
+          <div className="flex justify-between items-center min-h-[44px] py-2">
             <span className="text-gray-700">通知音</span>
             <button
               type="button"
@@ -96,7 +96,7 @@ export default function SettingsPage() {
             </button>
           </div>
 
-          <div className="flex justify-between items-center py-2">
+          <div className="flex justify-between items-center min-h-[44px] py-2">
             <div>
               <span className="text-gray-700">ブラウザ通知</span>
               <p className="text-sm text-gray-500">ブラウザの許可が必要です</p>
@@ -124,7 +124,7 @@ export default function SettingsPage() {
           <h2 className="font-semibold mb-4">ポモドーロ</h2>
           <Link
             href="/presets"
-            className="text-primary-600 hover:underline inline-flex items-center gap-1"
+            className="text-primary-600 hover:underline inline-flex items-center gap-1 min-h-[44px]"
           >
             プリセット管理
             <span aria-hidden="true">→</span>
@@ -137,7 +137,7 @@ export default function SettingsPage() {
           <button
             type="button"
             onClick={() => setShowExportModal(true)}
-            className="text-primary-600 hover:underline"
+            className="text-primary-600 hover:underline inline-flex items-center min-h-[44px]"
           >
             CSVエクスポート
           </button>
@@ -150,7 +150,7 @@ export default function SettingsPage() {
           <button
             type="button"
             onClick={() => setShowLogoutModal(true)}
-            className="text-red-600 hover:underline"
+            className="text-red-600 hover:underline inline-flex items-center min-h-[44px]"
           >
             ログアウト
           </button>
