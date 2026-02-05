@@ -77,7 +77,9 @@ export default function FocusPage() {
     try {
       await timer.stop();
       setShowExitConfirm(false);
-      router.push('/');
+      if (navigator.onLine) {
+        router.push('/');
+      }
     } catch (error) {
       console.error('Failed to stop timer:', error);
     } finally {
@@ -89,7 +91,9 @@ export default function FocusPage() {
     setIsStopping(true);
     try {
       await timer.stop();
-      router.push('/');
+      if (navigator.onLine) {
+        router.push('/');
+      }
     } catch (error) {
       console.error('Failed to stop timer:', error);
     } finally {
