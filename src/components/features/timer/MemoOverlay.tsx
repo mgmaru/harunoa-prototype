@@ -53,7 +53,7 @@ export const MemoOverlay = ({
             value={memo}
             onChange={(e) => setMemo(e.target.value)}
             placeholder="やったこと、詰まった点など"
-            className="w-full h-32 border border-gray-300 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="w-full h-32 border border-gray-300 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-900"
           />
           <div className="flex gap-3 justify-end mt-4">
             <button

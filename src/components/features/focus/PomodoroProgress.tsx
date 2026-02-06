@@ -35,7 +35,7 @@ export const PomodoroProgress = ({
   const phaseColor = phase === 'focus' ? 'bg-green-500' : 'bg-blue-500';
 
   const totalMinutes = phase === 'focus' ? focusDurationMinutes : breakDurationMinutes;
-  const totalFormatted = `${totalMinutes}:00`;
+  const totalFormatted = formatTimeMs(totalMinutes * 60 * 1000);
 
   if (phase === 'idle') {
     return null;

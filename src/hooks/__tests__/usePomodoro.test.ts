@@ -19,25 +19,40 @@ vi.mock('../useNotification', () => ({
   }),
 }));
 
-// pomodoroStoreのモック（Zustand store）
-const mockPomodoroStore = {
-  phase: 'idle' as 'idle' | 'focus' | 'break',
-  remainingMs: 0,
-  presetId: null as string | null,
-  focusDurationMinutes: 25,
-  breakDurationMinutes: 5,
-  isEnabled: false,
-  setPreset: vi.fn(),
-  startFocus: vi.fn(),
-  startBreak: vi.fn(),
-  skipBreak: vi.fn(),
-  tick: vi.fn(),
-  stop: vi.fn(),
-  reset: vi.fn(),
-};
+// vi.hoistedでモック変数をvi.mockより先に初期化
+const { mockPomodoroStore, mockTimerStore } = vi.hoisted(() => {
+  const mockPomodoroStore = {
+    phase: 'idle' as 'idle' | 'focus' | 'break',
+    remainingMs: 0,
+    presetId: null as string | null,
+    focusDurationMinutes: 25,
+    breakDurationMinutes: 5,
+    isEnabled: false,
+    setPreset: vi.fn(),
+    startFocus: vi.fn(),
+    startBreak: vi.fn(),
+    skipBreak: vi.fn(),
+    tick: vi.fn(),
+    stop: vi.fn(),
+    reset: vi.fn(),
+  };
+  const mockTimerStore = {
+    status: 'stopped' as 'stopped' | 'running' | 'paused',
+  };
+  return { mockPomodoroStore, mockTimerStore };
+});
 
 vi.mock('@/stores/pomodoroStore', () => ({
-  usePomodoroStore: () => mockPomodoroStore,
+  usePomodoroStore: Object.assign(
+    () => mockPomodoroStore,
+    { getState: () => mockPomodoroStore },
+  ),
+}));
+
+vi.mock('@/stores/timerStore', () => ({
+  useTimerStore: {
+    getState: () => mockTimerStore,
+  },
 }));
 
 import { usePomodoro } from '../usePomodoro';
@@ -54,6 +69,7 @@ describe('usePomodoro', () => {
     mockPomodoroStore.focusDurationMinutes = 25;
     mockPomodoroStore.breakDurationMinutes = 5;
     mockPomodoroStore.isEnabled = false;
+    mockTimerStore.status = 'stopped';
   });
 
   afterEach(() => {

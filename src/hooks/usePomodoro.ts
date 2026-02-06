@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { usePomodoroStore } from '@/stores/pomodoroStore';
+import { useTimerStore } from '@/stores/timerStore';
 import { useNotification } from './useNotification';
 
 export const usePomodoro = () => {
@@ -15,6 +16,11 @@ export const usePomodoro = () => {
     if (pomodoro.phase === 'idle' || !pomodoro.isEnabled) return;
 
     const interval = setInterval(() => {
+      const timerStatus = useTimerStore.getState().status;
+      if (timerStatus !== 'running') {
+        lastTickRef.current = Date.now();
+        return;
+      }
       const now = Date.now();
       const delta = now - lastTickRef.current;
       lastTickRef.current = now;
