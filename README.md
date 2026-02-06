@@ -17,9 +17,13 @@ Googleアカウントでログインするだけで、すぐに作業時間の�
 
 ## スクリーンショット
 
-| プロジェクト一覧 | 集中モード（タイマー + ポモドーロ） | 作業履歴 |
-|:---:|:---:|:---:|
-| ![ホーム](docs/images/screenshot-home.png) | ![集中モード](docs/images/screenshot-focus.png) | ![履歴](docs/images/screenshot-history.png) |
+| プロジェクト一覧 | 集中モード（タイマー + ポモドーロ） |
+|:---:|:---:|
+| ![ホーム](docs/images/screenshot-home.png) | ![集中モード](docs/images/screenshot-timer.png) |
+
+| 作業履歴 | 集計・グラフ |
+|:---:|:---:|
+| ![履歴](docs/images/screenshot-history.png) | ![集計](docs/images/screenshot-analytics.png) |
 
 ## 主な機能
 
