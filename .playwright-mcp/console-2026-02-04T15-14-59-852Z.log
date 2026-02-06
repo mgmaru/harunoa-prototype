@@ -1,0 +1,24 @@
+[     766ms] [ERROR] Failed to ensure default preset: TypeError: Cannot read properties of null (reading 'toDate')
+    at i (https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:2059)
+    at https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:2599
+    at Array.map (<anonymous>)
+    at u (https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:2592)
+    at async f (https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:3288)
+    at async m (https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:3774)
+    at async t (https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:753) @ https://harunoa-prototype.vercel.app/_next/static/chunks/966-67106407047384a5.js:0
+[     767ms] [ERROR] Failed to ensure default preset: TypeError: Cannot read properties of null (reading 'toDate')
+    at i (https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:2059)
+    at https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:2599
+    at Array.map (<anonymous>)
+    at u (https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:2592)
+    at async f (https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:3288)
+    at async m (https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:3774)
+    at async t (https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:753) @ https://harunoa-prototype.vercel.app/_next/static/chunks/966-67106407047384a5.js:0
+[     768ms] [ERROR] Failed to ensure default preset: TypeError: Cannot read properties of null (reading 'toDate')
+    at i (https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:2059)
+    at https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:2599
+    at Array.map (<anonymous>)
+    at u (https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:2592)
+    at async f (https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:3288)
+    at async m (https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:3774)
+    at async t (https://harunoa-prototype.vercel.app/_next/static/chunks/556-f7079df3502db856.js:1:753) @ https://harunoa-prototype.vercel.app/_next/static/chunks/966-67106407047384a5.js:0

@@ -1,0 +1,12 @@
+[   46420ms] [ERROR] Failed to load resource: net::ERR_INTERNET_DISCONNECTED @ https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Fharunoa-4cb92%2Fdatabases%2F(default)&gsessionid=-GVuB8aqIlgi0JougqtRIQ9G7iBqRtgRwhFtCnLu_rQtq3X2760d7Q&SID=wWQE208-ZRnN9foblURFng&RID=4013&TYPE=terminate&zx=h3lgzmqofill:0
+[   82253ms] [ERROR] Failed to load resource: net::ERR_INTERNET_DISCONNECTED @ https://harunoa-prototype.vercel.app/?_rsc=1ftcg:0
+[   82254ms] [ERROR] Failed to fetch RSC payload for https://harunoa-prototype.vercel.app/. Falling back to browser navigation. TypeError: Failed to fetch
+    at f (https://harunoa-prototype.vercel.app/_next/static/chunks/966-67106407047384a5.js:1:45433)
+    at j (https://harunoa-prototype.vercel.app/_next/static/chunks/966-67106407047384a5.js:1:23792)
+    at rE (https://harunoa-prototype.vercel.app/_next/static/chunks/fd9d1056-b107c2ceb6a17dfd.js:1:40341)
+    at iZ (https://harunoa-prototype.vercel.app/_next/static/chunks/fd9d1056-b107c2ceb6a17dfd.js:1:117026)
+    at ia (https://harunoa-prototype.vercel.app/_next/static/chunks/fd9d1056-b107c2ceb6a17dfd.js:1:95162)
+    at https://harunoa-prototype.vercel.app/_next/static/chunks/fd9d1056-b107c2ceb6a17dfd.js:1:91088
+    at https://harunoa-prototype.vercel.app/_next/static/chunks/fd9d1056-b107c2ceb6a17dfd.js:1:91095
+    at oZ (https://harunoa-prototype.vercel.app/_next/static/chunks/fd9d1056-b107c2ceb6a17dfd.js:1:91200)
+    at MessagePort.M (https://harunoa-prototype.vercel.app/_next/static/chunks/966-67106407047384a5.js:1:84770) @ https://harunoa-prototype.vercel.app/_next/static/chunks/966-67106407047384a5.js:0

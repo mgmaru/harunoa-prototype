@@ -1,0 +1,1 @@
+[  321428ms] [ERROR] Failed to load resource: the server responded with a status of 400 () @ https://firestore.googleapis.com/v1/projects/harunoa-4cb92/databases/(default)/documents:runQuery:0
