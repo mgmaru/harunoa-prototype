@@ -1,6 +1,6 @@
 /**
  * プロジェクトカラーパレット
- * 画面仕様書に基づく10色
+ * 画面仕様書に基づく16色
  */
 export const PROJECT_COLORS = [
   '#3B82F6', // blue
@@ -13,6 +13,12 @@ export const PROJECT_COLORS = [
   '#1F2937', // gray-dark
   '#9CA3AF', // gray-light
   '#06B6D4', // cyan
+  '#EC4899', // pink
+  '#84CC16', // lime
+  '#6366F1', // indigo
+  '#14B8A6', // teal
+  '#F59E0B', // amber
+  '#F43F5E', // rose
 ] as const;
 
 export type ProjectColor = (typeof PROJECT_COLORS)[number];
@@ -31,4 +37,10 @@ export const COLOR_NAMES: Record<ProjectColor, string> = {
   '#1F2937': '黒',
   '#9CA3AF': 'グレー',
   '#06B6D4': 'シアン',
+  '#EC4899': 'ピンク',
+  '#84CC16': 'ライム',
+  '#6366F1': 'インディゴ',
+  '#14B8A6': 'ティール',
+  '#F59E0B': 'アンバー',
+  '#F43F5E': 'ローズ',
 };
