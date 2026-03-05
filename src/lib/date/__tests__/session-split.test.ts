@@ -86,6 +86,20 @@ describe('splitSessionByDate', () => {
     expect(result[1].durationMs).toBe(30 * 60 * 1000);
   });
 
+  it('actualDurationMs按分の丸め誤差を最後のセグメントで補正する', () => {
+    // 3日間にまたがるセッション（22:00 - 02:00翌々日 = 28時間経過、実作業10時間）
+    const startAt = new Date('2026-01-20T22:00:00');
+    const endAt = new Date('2026-01-22T02:00:00');
+    const actualDurationMs = 10 * 60 * 60 * 1000; // 10時間
+
+    const result = splitSessionByDate(startAt, endAt, actualDurationMs);
+
+    expect(result).toHaveLength(3);
+    // 合計が正確にactualDurationMsと一致すること
+    const totalMs = result.reduce((sum, s) => sum + s.durationMs, 0);
+    expect(totalMs).toBe(actualDurationMs);
+  });
+
   it('日の境界ぴったりのセッションを正しく処理する', () => {
     // 00:00 - 00:00 (24時間)
     const startAt = new Date('2026-01-21T00:00:00');

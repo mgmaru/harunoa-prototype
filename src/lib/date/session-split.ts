@@ -44,6 +44,7 @@ export const splitSessionByDate = (
   const totalElapsedMs = differenceInMilliseconds(endAt, startAt);
   const result: SplitSession[] = [];
   let current = startAt;
+  let allocatedMs = 0;
 
   while (current < endAt) {
     const dayEnd = endOfDay(current);
@@ -53,11 +54,19 @@ export const splitSessionByDate = (
     const segmentMs = differenceInMilliseconds(segmentEnd, current);
 
     if (segmentMs > 0) {
-      // actualDurationMsが指定されている場合、経過時間の比率で按分する
-      const durationMs =
-        actualDurationMs !== undefined
-          ? Math.round((segmentMs / totalElapsedMs) * actualDurationMs)
-          : segmentMs;
+      let durationMs: number;
+      if (actualDurationMs !== undefined) {
+        const isLastSegment = startOfDay(addDays(current, 1)) >= endAt;
+        if (isLastSegment) {
+          // 最後のセグメントに残りを割り当て、丸め誤差を補正
+          durationMs = actualDurationMs - allocatedMs;
+        } else {
+          durationMs = Math.round((segmentMs / totalElapsedMs) * actualDurationMs);
+          allocatedMs += durationMs;
+        }
+      } else {
+        durationMs = segmentMs;
+      }
 
       result.push({
         date: startOfDay(current),
