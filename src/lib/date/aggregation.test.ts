@@ -89,14 +89,15 @@ describe('aggregateSessions', () => {
     id: string,
     projectId: string,
     startAt: Date,
-    endAt: Date
+    endAt: Date,
+    durationMs?: number
   ): Session => ({
     id,
     userId: 'user-1',
     projectId,
     startAt,
     endAt,
-    durationMs: endAt.getTime() - startAt.getTime(),
+    durationMs: durationMs ?? endAt.getTime() - startAt.getTime(),
     memo: '',
     isArchived: false,
     archivedAt: null,
@@ -282,6 +283,32 @@ describe('aggregateSessions', () => {
 
     // Assert
     expect(result).toHaveLength(0);
+  });
+
+  it('should use durationMs instead of elapsed time for paused sessions', () => {
+    // Arrange
+    const periodStart = new Date('2026-01-15T00:00:00');
+    const periodEnd = new Date('2026-01-15T23:59:59');
+
+    const projects = [createMockProject('proj-1', 'Project A', '#FF0000')];
+
+    // Session: 10:00-11:00 (60min elapsed) but only 30min actual work (paused 30min)
+    const sessions = [
+      createMockSession(
+        'sess-1',
+        'proj-1',
+        new Date('2026-01-15T10:00:00'),
+        new Date('2026-01-15T11:00:00'),
+        30 * 60 * 1000 // 30 minutes actual work
+      ),
+    ];
+
+    // Act
+    const result = aggregateSessions(sessions, projects, periodStart, periodEnd);
+
+    // Assert
+    expect(result).toHaveLength(1);
+    expect(result[0].totalMinutes).toBe(30); // Should be 30, not 60
   });
 
   it('should handle sessions spanning multiple days', () => {

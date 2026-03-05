@@ -61,6 +61,31 @@ describe('splitSessionByDate', () => {
     expect(splitSessionByDate(startAt, endAt)).toEqual([]);
   });
 
+  it('actualDurationMsが指定された場合、按分して返す', () => {
+    const startAt = new Date('2026-01-21T10:00:00');
+    const endAt = new Date('2026-01-21T11:00:00');
+    // 60分経過、実作業30分（30分一時停止）
+    const result = splitSessionByDate(startAt, endAt, 30 * 60 * 1000);
+
+    expect(result).toHaveLength(1);
+    expect(result[0].durationMs).toBe(30 * 60 * 1000);
+  });
+
+  it('日付跨ぎ+actualDurationMsで比率按分する', () => {
+    // 23:00 - 01:00 (2時間経過、実作業1時間)
+    const startAt = new Date('2026-01-21T23:00:00');
+    const endAt = new Date('2026-01-22T01:00:00');
+    const actualDurationMs = 60 * 60 * 1000; // 1時間
+
+    const result = splitSessionByDate(startAt, endAt, actualDurationMs);
+
+    expect(result).toHaveLength(2);
+    // 1日目: 23:00-00:00 = 1時間/2時間 = 50% → 30分
+    expect(result[0].durationMs).toBe(30 * 60 * 1000);
+    // 2日目: 00:00-01:00 = 1時間/2時間 = 50% → 30分
+    expect(result[1].durationMs).toBe(30 * 60 * 1000);
+  });
+
   it('日の境界ぴったりのセッションを正しく処理する', () => {
     // 00:00 - 00:00 (24時間)
     const startAt = new Date('2026-01-21T00:00:00');
