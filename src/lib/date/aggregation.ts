@@ -105,8 +105,8 @@ export const aggregateSessions = (
     const project = projectMap.get(session.projectId);
     if (!project || project.isArchived) continue;
 
-    // 日付跨ぎを按分
-    const splits = splitSessionByDate(session.startAt, session.endAt);
+    // 日付跨ぎを按分（一時停止時間を除外した実際の作業時間で按分）
+    const splits = splitSessionByDate(session.startAt, session.endAt, session.durationMs);
 
     for (const split of splits) {
       // 期間内のみ集計

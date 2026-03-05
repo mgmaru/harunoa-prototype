@@ -28,25 +28,46 @@ export type SplitSession = {
  *
  * @param startAt セッション開始時刻
  * @param endAt セッション終了時刻
+ * @param actualDurationMs 実際の作業時間（ミリ秒）。一時停止時間を除外した値。省略時はstartAt〜endAtの差分を使用
  * @returns 日付ごとに分割されたセッション配列
  */
-export const splitSessionByDate = (startAt: Date, endAt: Date): SplitSession[] => {
+export const splitSessionByDate = (
+  startAt: Date,
+  endAt: Date,
+  actualDurationMs?: number
+): SplitSession[] => {
   // バリデーション
   if (startAt >= endAt) {
     return [];
   }
 
+  const totalElapsedMs = differenceInMilliseconds(endAt, startAt);
   const result: SplitSession[] = [];
   let current = startAt;
+  let allocatedMs = 0;
 
   while (current < endAt) {
     const dayEnd = endOfDay(current);
     // その日の終了時刻（セッション終了かその日の終わりのいずれか早い方）
     const segmentEnd = dayEnd < endAt ? addMillisecond(dayEnd) : endAt;
 
-    const durationMs = differenceInMilliseconds(segmentEnd, current);
+    const segmentMs = differenceInMilliseconds(segmentEnd, current);
 
-    if (durationMs > 0) {
+    if (segmentMs > 0) {
+      let durationMs: number;
+      if (actualDurationMs !== undefined) {
+        const isLastSegment = startOfDay(addDays(current, 1)) >= endAt;
+        if (isLastSegment) {
+          // 最後のセグメントに残りを割り当て、丸め誤差を補正
+          durationMs = actualDurationMs - allocatedMs;
+        } else {
+          durationMs = Math.round((segmentMs / totalElapsedMs) * actualDurationMs);
+          allocatedMs += durationMs;
+        }
+      } else {
+        durationMs = segmentMs;
+      }
+
       result.push({
         date: startOfDay(current),
         durationMs: Math.min(durationMs, 24 * 60 * 60 * 1000), // 1日最大24時間
@@ -91,9 +112,10 @@ export const isSessionSpanningDays = (startAt: Date, endAt: Date): boolean => {
 export const getSessionDurationForDate = (
   startAt: Date,
   endAt: Date,
-  targetDate: Date
+  targetDate: Date,
+  actualDurationMs?: number
 ): number => {
-  const splits = splitSessionByDate(startAt, endAt);
+  const splits = splitSessionByDate(startAt, endAt, actualDurationMs);
   const targetDayStart = startOfDay(targetDate).getTime();
 
   const found = splits.find((s) => s.date.getTime() === targetDayStart);
