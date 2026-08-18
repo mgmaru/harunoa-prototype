@@ -19,7 +19,7 @@ vi.mock('../useAuth');
 
 // timerStoreのモック（Zustand store）
 const mockTimerStore = {
-  status: 'stopped' as const,
+  status: 'stopped' as 'stopped' | 'running' | 'paused',
   projectId: null as string | null,
   projectName: null as string | null,
   projectColor: null as string | null,

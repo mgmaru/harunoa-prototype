@@ -15,6 +15,7 @@ vi.mock('@/services/presets', () => ({
   createPreset: vi.fn(),
   updatePreset: vi.fn(),
   deletePreset: vi.fn(),
+  deleteActivePresetAndSetDefault: vi.fn(),
   setActivePreset: vi.fn(),
   clearActivePreset: vi.fn(),
 }));
@@ -219,19 +220,21 @@ describe('usePresets', () => {
       expect(result.current.presets.find((p) => p.id === 'preset-2')).toBeUndefined();
     });
 
-    it('アクティブなプリセットの削除はエラーになる', async () => {
+    it('アクティブなプリセットの削除はデフォルトを自動で利用中にする', async () => {
       const { result } = renderHook(() => usePresets());
 
       await waitFor(() => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      await expect(
-        act(async () => {
-          await result.current.remove('preset-1');
-        })
-      ).rejects.toThrow('利用中のプリセットは削除できません');
+      await act(async () => {
+        await result.current.remove('preset-1');
+      });
 
+      expect(presetsService.deleteActivePresetAndSetDefault).toHaveBeenCalledWith(
+        'test-uid',
+        'preset-1'
+      );
       expect(presetsService.deletePreset).not.toHaveBeenCalled();
     });
   });

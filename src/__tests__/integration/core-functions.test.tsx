@@ -97,6 +97,19 @@ vi.mock('@/services/sessions', () => ({
   createSession: (...args: unknown[]) => mockCreateSession(...args),
   getSessions: () => mockGetSessions(),
   getSessionsByDate: (...args: unknown[]) => mockGetSessionsByDate(...args),
+  // useSessionsはgetSessionsByDatePaginatedを呼ぶため、
+  // 同じテストデータをページング結果の形に包んで返す
+  getSessionsByDatePaginated: async (...args: unknown[]) => {
+    const sessions = (await mockGetSessionsByDate(...args)) ?? [];
+    return {
+      sessions,
+      totalCount: sessions.length,
+      currentPage: 1,
+      totalPages: 1,
+      hasNextPage: false,
+      hasPrevPage: false,
+    };
+  },
   getSession: (...args: unknown[]) => mockGetSession(...args),
   getSessionsByProject: vi.fn().mockResolvedValue([]),
   updateSession: vi.fn(),

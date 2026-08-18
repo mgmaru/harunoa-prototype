@@ -88,12 +88,15 @@ vi.mock('@/services/sessions', () => ({
 // ===== プリセットサービスモック =====
 const mockGetPresets = vi.fn();
 const mockDeletePreset = vi.fn();
+const mockDeleteActivePresetAndSetDefault = vi.fn();
 
 vi.mock('@/services/presets', () => ({
   getPresets: () => mockGetPresets(),
   createPreset: vi.fn(),
   updatePreset: vi.fn(),
   deletePreset: () => mockDeletePreset(),
+  deleteActivePresetAndSetDefault: (...args: unknown[]) =>
+    mockDeleteActivePresetAndSetDefault(...args),
   setActivePreset: vi.fn(),
   clearActivePreset: vi.fn(),
   ensureDefaultPreset: vi.fn().mockResolvedValue(undefined),
@@ -338,7 +341,7 @@ describe('EDGE-003: プリセット削除の制約', () => {
     });
   });
 
-  it('利用中のプリセットは削除できない', async () => {
+  it('利用中のプリセットを削除するとデフォルトが自動で利用中になる', async () => {
     mockGetPresets.mockResolvedValue([
       {
         id: 'preset-active',
@@ -372,10 +375,17 @@ describe('EDGE-003: プリセット削除の制約', () => {
       expect(result.current.isLoading).toBe(false);
     });
 
-    // 利用中のプリセットを削除しようとするとエラー
-    await expect(result.current.remove('preset-active')).rejects.toThrow(
-      '利用中のプリセットは削除できません'
+    // 利用中のプリセットも削除できる（デフォルトプリセットが自動で利用中になる）
+    await act(async () => {
+      await result.current.remove('preset-active');
+    });
+
+    expect(mockDeleteActivePresetAndSetDefault).toHaveBeenCalledWith(
+      'test-user-id',
+      'preset-active'
     );
+    // 利用中でない削除用のAPIは呼ばれない
+    expect(mockDeletePreset).not.toHaveBeenCalled();
   });
 
   it('利用中でないプリセットは削除できる', async () => {
