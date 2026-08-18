@@ -100,6 +100,19 @@ vi.mock('@/services/sessions', () => ({
   createSession: vi.fn(),
   getSessions: vi.fn().mockResolvedValue([]),
   getSessionsByDate: (...args: unknown[]) => mockGetSessionsByDate(...args),
+  // useSessionsはgetSessionsByDatePaginatedを呼ぶため、
+  // 同じテストデータをページング結果の形に包んで返す
+  getSessionsByDatePaginated: async (...args: unknown[]) => {
+    const sessions = (await mockGetSessionsByDate(...args)) ?? [];
+    return {
+      sessions,
+      totalCount: sessions.length,
+      currentPage: 1,
+      totalPages: 1,
+      hasNextPage: false,
+      hasPrevPage: false,
+    };
+  },
   getSessionsByPeriod: (...args: unknown[]) => mockGetSessionsByPeriod(...args),
   getSession: (...args: unknown[]) => mockGetSession(...args),
   getSessionsByProject: vi.fn().mockResolvedValue([]),
@@ -415,6 +428,10 @@ describe('データ整合性・可視化テスト (INT-011〜INT-015)', () => {
       // Arrange
       const testDate = new Date('2026-01-15');
       mockDeleteSession.mockResolvedValue(undefined);
+      // removeは削除後にデータを再取得するため、再取得結果を用意する
+      mockGetSessionsByDate
+        .mockResolvedValueOnce(mockSessions)
+        .mockResolvedValueOnce([mockSessions[1]]);
 
       const { result } = renderHook(() => useSessions(testDate));
 
