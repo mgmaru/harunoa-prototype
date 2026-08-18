@@ -163,6 +163,18 @@ import { exportSessionsToCSV, createProjectMap } from '@/lib/csv/export';
 import type { Session } from '@/types/session';
 import type { Project } from '@/types/project';
 
+// オフラインキューのアクションは type による判別可能なユニオンのため、
+// payload を参照する前に type で絞り込む
+type QueuedAction = ReturnType<typeof useOfflineStore.getState>['queue'][number];
+
+const expectQueuedAction = <T extends QueuedAction['type']>(
+  action: QueuedAction,
+  type: T
+): Extract<QueuedAction, { type: T }> => {
+  expect(action.type).toBe(type);
+  return action as Extract<QueuedAction, { type: T }>;
+};
+
 // =========================================================================
 // INT-021: ポモドーロ・タイマー連携テスト
 // =========================================================================
@@ -401,8 +413,8 @@ describe('INT-024: オフライン計測と同期', () => {
 
     const { queue } = useOfflineStore.getState();
     expect(queue).toHaveLength(1);
-    expect(queue[0].type).toBe('CREATE_SESSION');
-    expect(queue[0].payload.memo).toBe('オフライン中の作業');
+    const created = expectQueuedAction(queue[0], 'CREATE_SESSION');
+    expect(created.payload.memo).toBe('オフライン中の作業');
   });
 
   it('オンライン復帰後に自動同期される', async () => {
@@ -463,8 +475,12 @@ describe('INT-024: オフライン計測と同期', () => {
 
     // タイムスタンプ順にソートされることを確認
     const sortedQueue = [...queue].sort((a, b) => a.timestamp - b.timestamp);
-    expect(sortedQueue[0].payload.memo).toBe('最初の作業');
-    expect(sortedQueue[1].payload.memo).toBe('2番目の作業');
+    expect(
+      expectQueuedAction(sortedQueue[0], 'CREATE_SESSION').payload.memo
+    ).toBe('最初の作業');
+    expect(
+      expectQueuedAction(sortedQueue[1], 'CREATE_SESSION').payload.memo
+    ).toBe('2番目の作業');
   });
 });
 
@@ -492,8 +508,8 @@ describe('INT-025: オフライン中の画面遷移とキュー蓄積', () => {
 
     const { queue } = useOfflineStore.getState();
     expect(queue).toHaveLength(1);
-    expect(queue[0].type).toBe('UPDATE_SESSION');
-    expect(queue[0].payload.data.memo).toBe('更新されたメモ');
+    const updated = expectQueuedAction(queue[0], 'UPDATE_SESSION');
+    expect(updated.payload.data.memo).toBe('更新されたメモ');
   });
 
   it('削除操作がキューに蓄積される', () => {
@@ -503,8 +519,8 @@ describe('INT-025: オフライン中の画面遷移とキュー蓄積', () => {
 
     const { queue } = useOfflineStore.getState();
     expect(queue).toHaveLength(1);
-    expect(queue[0].type).toBe('DELETE_SESSION');
-    expect(queue[0].payload.sessionId).toBe('session-1');
+    const deleted = expectQueuedAction(queue[0], 'DELETE_SESSION');
+    expect(deleted.payload.sessionId).toBe('session-1');
   });
 
   it('キューの状態がlocalStorageに永続化される（Zustand persist）', () => {
