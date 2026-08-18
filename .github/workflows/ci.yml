@@ -57,11 +57,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
-      # Firebase Emulatorの実行にJavaが必要
+      # Firebase Emulatorの実行にJavaが必要（firebase-toolsはJDK 21以上を要求）
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       - name: Install dependencies
         run: npm ci
