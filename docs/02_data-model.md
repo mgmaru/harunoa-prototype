@@ -207,9 +207,9 @@ export interface UserSettings {
 
 ---
 
-## 5. カラーパレット（10色）
+## 5. カラーパレット（24色）
 
-プロジェクト色の自動割当に使用する定義済みカラー：
+プロジェクト色の自動割当・手動選択に使用する定義済みカラー：
 
 ```typescript
 // constants/colors.ts
@@ -224,10 +224,27 @@ export const PROJECT_COLORS = [
   '#1F2937', // gray-dark
   '#9CA3AF', // gray-light
   '#06B6D4', // cyan
+  '#EC4899', // pink
+  '#84CC16', // lime
+  '#6366F1', // indigo
+  '#14B8A6', // teal
+  '#F59E0B', // amber
+  '#F43F5E', // rose
+  '#0EA5E9', // sky
+  '#9F1239', // wine
+  '#10B981', // emerald
+  '#6B21A8', // purple-dark
+  '#B45309', // bronze
+  '#D946EF', // fuchsia
+  '#1E3A8A', // navy
+  '#15803D', // green-dark
 ] as const;
 
 export type ProjectColor = typeof PROJECT_COLORS[number];
 ```
+
+保存済みプロジェクトの色がパレット外にならないよう、定義済みの色の削除・変更は行わない。
+自動割当はこの配列順に走査するため、隣接する色が判別しやすい並びを維持する。
 
 ---
 

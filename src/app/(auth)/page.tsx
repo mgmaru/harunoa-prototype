@@ -124,6 +124,7 @@ export default function HomePage() {
         onClose={() => setIsCreateModalOpen(false)}
         onCreate={handleCreate}
         existingNames={projects.map((p) => p.name)}
+        usedColors={projects.map((p) => p.color)}
       />
 
       <ProjectEditModal
@@ -131,6 +132,9 @@ export default function HomePage() {
         onClose={() => setEditingProject(null)}
         onSave={handleUpdate}
         project={editingProject}
+        usedColors={projects
+          .filter((p) => p.id !== editingProject?.id)
+          .map((p) => p.color)}
       />
 
       <ConfirmModal

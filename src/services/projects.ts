@@ -46,25 +46,59 @@ const toProject = (id: string, data: ProjectDocument): Project => ({
 });
 
 /**
- * 次の自動割当色を取得
- * 未使用の色があれば優先、すべて使用済みなら最初の色に戻る
+ * アクティブなプロジェクト一覧を取得
  */
-const getNextAutoColor = async (userId: string): Promise<string> => {
+export const getProjects = async (userId: string): Promise<Project[]> => {
   const q = query(
     collection(db, PROJECTS_COLLECTION),
     where('userId', '==', userId),
-    orderBy('createdAt', 'desc'),
+    where('isArchived', '==', false),
+    orderBy('updatedAt', 'desc'),
     limit(MAX_PROJECTS_LIMIT)
   );
   const snapshot = await getDocs(q);
-  const usedColors = snapshot.docs.map((d) => d.data().color as string);
 
-  for (const color of PROJECT_COLORS) {
-    if (!usedColors.includes(color)) {
-      return color;
+  return snapshot.docs.map((doc) =>
+    toProject(doc.id, doc.data() as ProjectDocument)
+  );
+};
+
+/**
+ * 次の自動割当色を取得
+ * 未使用の色があれば優先、すべて使用済みなら最も使用数が少ない色を返す
+ *
+ * 集計対象はアクティブなプロジェクトのみ。
+ * アーカイブ済みプロジェクトの色は再利用可能として扱う。
+ */
+const getNextAutoColor = async (userId: string): Promise<string> => {
+  const activeProjects = await getProjects(userId);
+
+  const usageCounts = new Map<string, number>(
+    PROJECT_COLORS.map((color) => [color, 0])
+  );
+  for (const project of activeProjects) {
+    const count = usageCounts.get(project.color);
+    // パレット外の色（過去の定義など）は集計対象外
+    if (count !== undefined) {
+      usageCounts.set(project.color, count + 1);
     }
   }
-  return PROJECT_COLORS[0];
+
+  let leastUsedColor: string = PROJECT_COLORS[0];
+  let leastUsedCount = Number.POSITIVE_INFINITY;
+
+  for (const color of PROJECT_COLORS) {
+    const count = usageCounts.get(color) ?? 0;
+    if (count === 0) {
+      return color;
+    }
+    if (count < leastUsedCount) {
+      leastUsedCount = count;
+      leastUsedColor = color;
+    }
+  }
+
+  return leastUsedColor;
 };
 
 /**
@@ -99,24 +133,6 @@ export const createProject = async (
     createdAt: now,
     updatedAt: now,
   };
-};
-
-/**
- * アクティブなプロジェクト一覧を取得
- */
-export const getProjects = async (userId: string): Promise<Project[]> => {
-  const q = query(
-    collection(db, PROJECTS_COLLECTION),
-    where('userId', '==', userId),
-    where('isArchived', '==', false),
-    orderBy('updatedAt', 'desc'),
-    limit(MAX_PROJECTS_LIMIT)
-  );
-  const snapshot = await getDocs(q);
-
-  return snapshot.docs.map((doc) =>
-    toProject(doc.id, doc.data() as ProjectDocument)
-  );
 };
 
 /**
