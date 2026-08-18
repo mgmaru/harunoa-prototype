@@ -11,6 +11,8 @@ type ProjectEditModalProps = {
   onClose: () => void;
   onSave: (id: string, input: UpdateProjectInput) => Promise<void>;
   project: Project | null;
+  /** 編集対象を除く他プロジェクトの使用色 */
+  usedColors?: string[];
 };
 
 export const ProjectEditModal = ({
@@ -18,6 +20,7 @@ export const ProjectEditModal = ({
   onClose,
   onSave,
   project,
+  usedColors = [],
 }: ProjectEditModalProps) => {
   const [name, setName] = useState('');
   const [color, setColor] = useState<string | null>(null);
@@ -87,7 +90,7 @@ export const ProjectEditModal = ({
           <label className="block text-sm font-medium text-gray-700 mb-2">
             色
           </label>
-          <ColorPicker value={color} onChange={setColor} />
+          <ColorPicker value={color} onChange={setColor} usedColors={usedColors} />
         </div>
 
         <div className="flex gap-3 justify-end pt-2">

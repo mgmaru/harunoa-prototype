@@ -11,6 +11,7 @@ type ProjectCreateModalProps = {
   onClose: () => void;
   onCreate: (input: CreateProjectInput) => Promise<void>;
   existingNames?: string[];
+  usedColors?: string[];
 };
 
 export const ProjectCreateModal = ({
@@ -18,6 +19,7 @@ export const ProjectCreateModal = ({
   onClose,
   onCreate,
   existingNames = [],
+  usedColors = [],
 }: ProjectCreateModalProps) => {
   const [name, setName] = useState('');
   const [color, setColor] = useState<string | null>(null);
@@ -98,6 +100,7 @@ export const ProjectCreateModal = ({
             value={color}
             onChange={setColor}
             showAutoOption
+            usedColors={usedColors}
           />
         </div>
 

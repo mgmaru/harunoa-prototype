@@ -42,21 +42,37 @@ import { PROJECT_COLORS } from '@/constants/colors';
 const projectsRef = collection(db, 'projects');
 
 // 次の自動割当色を取得
+// 未使用色を優先し、全色使用済みなら最も使用数が少ない色を返す
+// 集計対象はアクティブなプロジェクトのみ（アーカイブ済みの色は再利用可能）
 async function getNextAutoColor(userId: string): Promise<string> {
-  const q = query(
-    projectsRef,
-    where('userId', '==', userId),
-    orderBy('createdAt', 'desc')
+  const activeProjects = await getProjects(userId);
+
+  const usageCounts = new Map<string, number>(
+    PROJECT_COLORS.map((color) => [color, 0])
   );
-  const snapshot = await getDocs(q);
-  const usedColors = snapshot.docs.map((d) => d.data().color);
-  
-  for (const color of PROJECT_COLORS) {
-    if (!usedColors.includes(color)) {
-      return color;
+  for (const project of activeProjects) {
+    const count = usageCounts.get(project.color);
+    // パレット外の色（過去の定義など）は集計対象外
+    if (count !== undefined) {
+      usageCounts.set(project.color, count + 1);
     }
   }
-  return PROJECT_COLORS[0]; // 全て使用済みなら最初に戻る
+
+  let leastUsedColor: string = PROJECT_COLORS[0];
+  let leastUsedCount = Number.POSITIVE_INFINITY;
+
+  for (const color of PROJECT_COLORS) {
+    const count = usageCounts.get(color) ?? 0;
+    if (count === 0) {
+      return color;
+    }
+    if (count < leastUsedCount) {
+      leastUsedCount = count;
+      leastUsedColor = color;
+    }
+  }
+
+  return leastUsedColor;
 }
 
 export async function createProject(
@@ -164,10 +180,26 @@ export const PROJECT_COLORS = [
   '#1F2937', // gray-dark
   '#9CA3AF', // gray-light
   '#06B6D4', // cyan
+  '#EC4899', // pink
+  '#84CC16', // lime
+  '#6366F1', // indigo
+  '#14B8A6', // teal
+  '#F59E0B', // amber
+  '#F43F5E', // rose
+  '#0EA5E9', // sky
+  '#9F1239', // wine
+  '#10B981', // emerald
+  '#6B21A8', // purple-dark
+  '#B45309', // bronze
+  '#D946EF', // fuchsia
+  '#1E3A8A', // navy
+  '#15803D', // green-dark
 ] as const;
 
 export type ProjectColor = (typeof PROJECT_COLORS)[number];
 ```
+
+色数は24色。表示名は `COLOR_NAMES` に定義し、ColorPickerのaria-labelに使用する。
 
 ### 3. プロジェクトフック
 
