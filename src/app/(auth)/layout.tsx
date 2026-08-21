@@ -7,6 +7,8 @@ import { saveRedirectPath } from '@/lib/auth/redirect';
 import { OfflineBanner } from '@/components/ui/OfflineBanner';
 import { ToastContainer } from '@/components/ui/Toast';
 import { useOfflineStore } from '@/stores/offlineStore';
+import { useTimerHeartbeat } from '@/hooks/useTimerHeartbeat';
+import { useTimerRecovery } from '@/hooks/useTimerRecovery';
 
 export default function AuthLayout({
   children,
@@ -16,6 +18,10 @@ export default function AuthLayout({
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+
+  // ブラウザクローズで中断された計測の復旧と、最終アクティブ時刻の記録
+  useTimerRecovery();
+  useTimerHeartbeat();
 
   // アプリ起動時にisSyncingフラグをリセット（ページ遷移やクラッシュで残った場合の救済）
   useEffect(() => {
