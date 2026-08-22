@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useProjects } from '@/hooks/useProjects';
 import { useTimer } from '@/hooks/useTimer';
@@ -17,6 +17,7 @@ const PlayIcon = () => (
 
 export default function TimerPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { projects, isLoading: isProjectsLoading } = useProjects();
   const timer = useTimer();
   const { presets, activePreset, isLoading: isPresetsLoading } = usePresets();
@@ -25,6 +26,23 @@ export default function TimerPage() {
   const [selectedPresetId, setSelectedPresetId] = useState<string>('');
   const [showSwitchWarning, setShowSwitchWarning] = useState(false);
   const [isSwitching, setIsSwitching] = useState(false);
+
+  // プロジェクト一覧（SCR-002）から遷移した場合、対象プロジェクトを初期選択する
+  const queryProjectId = searchParams.get('projectId');
+  const hasAppliedQueryProject = useRef(false);
+
+  useEffect(() => {
+    if (hasAppliedQueryProject.current) return;
+    if (isProjectsLoading || !queryProjectId) return;
+
+    // 一覧の読み込み完了後に一度だけ反映し、以降のユーザー操作を上書きしない
+    hasAppliedQueryProject.current = true;
+
+    // アーカイブ済み・他ユーザー・存在しないIDは一覧に含まれないため未選択のままとする
+    if (projects.some((p) => p.id === queryProjectId)) {
+      setSelectedProjectId(queryProjectId);
+    }
+  }, [isProjectsLoading, projects, queryProjectId]);
 
   // アクティブなプリセットが変更されたら選択状態を更新
   useEffect(() => {
