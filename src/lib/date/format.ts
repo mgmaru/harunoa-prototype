@@ -64,3 +64,51 @@ export const formatDurationMs = (ms: number): string => {
   const minutes = Math.floor(ms / 1000 / 60);
   return formatDuration(minutes);
 };
+
+/**
+ * 一時停止時間の内訳を表示する下限（1分）
+ *
+ * 計測時間は分単位で表示するため、これ未満の一時停止は「0分」となり
+ * 情報にならない。内訳を出さず計測時間のみを表示する。
+ */
+export const PAUSED_DISPLAY_THRESHOLD_MS = 60 * 1000;
+
+/**
+ * セッションの一時停止時間（ミリ秒）を算出
+ *
+ * durationMs は一時停止を除いた計測時間のため、経過時間との差分が一時停止時間となる。
+ * ポモドーロの休憩中はタイマーが止まらないため、休憩時間は計測時間に含まれる。
+ */
+export const getPausedMs = (
+  startAt: Date,
+  endAt: Date,
+  durationMs: number
+): number => {
+  const elapsedMs = endAt.getTime() - startAt.getTime();
+  return Math.max(elapsedMs - durationMs, 0);
+};
+
+/**
+ * セッションの時間表記をフォーマット
+ *
+ * 一時停止がある場合のみ内訳を表示する。
+ *
+ * @example
+ * // 一時停止なし
+ * formatSessionDuration(start, end, 3600000); // => '1時間'
+ * // 一時停止あり
+ * formatSessionDuration(start, end, 13800000); // => '計測 3時間50分 / 一時停止 10分'
+ */
+export const formatSessionDuration = (
+  startAt: Date,
+  endAt: Date,
+  durationMs: number
+): string => {
+  const pausedMs = getPausedMs(startAt, endAt, durationMs);
+
+  if (pausedMs < PAUSED_DISPLAY_THRESHOLD_MS) {
+    return formatDurationMs(durationMs);
+  }
+
+  return `計測 ${formatDurationMs(durationMs)} / 一時停止 ${formatDurationMs(pausedMs)}`;
+};

@@ -4,6 +4,8 @@ import {
   formatTimeMs,
   formatDuration,
   formatDurationMs,
+  formatSessionDuration,
+  getPausedMs,
 } from '../format';
 
 describe('formatTime', () => {
@@ -96,5 +98,59 @@ describe('formatDurationMs', () => {
 
   it('端数は切り捨てられる', () => {
     expect(formatDurationMs(90000)).toBe('1分'); // 90秒 = 1分30秒 → 1分
+  });
+});
+
+/**
+ * 関連Issue: #24 履歴の時間表記に計測時間と一時停止時間の内訳を表示する
+ */
+const MINUTE = 60 * 1000;
+const at = (time: string): Date => new Date(`2026-01-21T${time}:00`);
+
+describe('getPausedMs', () => {
+  it('経過時間と計測時間の差分を一時停止時間として返す', () => {
+    expect(getPausedMs(at('10:00'), at('14:00'), 230 * MINUTE)).toBe(10 * MINUTE);
+  });
+
+  it('一時停止がない場合は0を返す', () => {
+    expect(getPausedMs(at('10:00'), at('11:00'), 60 * MINUTE)).toBe(0);
+  });
+
+  it('計測時間が経過時間を超える場合は0にクランプする', () => {
+    expect(getPausedMs(at('10:00'), at('11:00'), 90 * MINUTE)).toBe(0);
+  });
+});
+
+describe('formatSessionDuration', () => {
+  it('一時停止がない場合は計測時間のみを表示する', () => {
+    expect(formatSessionDuration(at('10:00'), at('11:00'), 60 * MINUTE)).toBe(
+      '1時間'
+    );
+  });
+
+  it('一時停止がある場合は内訳を表示する', () => {
+    expect(formatSessionDuration(at('10:00'), at('14:00'), 230 * MINUTE)).toBe(
+      '計測 3時間50分 / 一時停止 10分'
+    );
+  });
+
+  it('一時停止が1分未満の場合は内訳を表示しない', () => {
+    // 経過1時間に対し計測59分30秒（＝一時停止30秒）
+    const durationMs = 59 * MINUTE + 30 * 1000;
+    expect(formatSessionDuration(at('10:00'), at('11:00'), durationMs)).toBe(
+      '59分'
+    );
+  });
+
+  it('一時停止がちょうど1分の場合は内訳を表示する', () => {
+    expect(formatSessionDuration(at('10:00'), at('11:00'), 59 * MINUTE)).toBe(
+      '計測 59分 / 一時停止 1分'
+    );
+  });
+
+  it('計測時間が経過時間を超える場合は内訳を表示しない', () => {
+    expect(formatSessionDuration(at('10:00'), at('11:00'), 90 * MINUTE)).toBe(
+      '1時間30分'
+    );
   });
 });

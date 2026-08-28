@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { ColorDot } from '@/components/ui/ColorPicker';
-import { formatDurationMs } from '@/lib/date/format';
+import { formatSessionDuration } from '@/lib/date/format';
 import { Session } from '@/types/session';
 import { Project } from '@/types/project';
 
@@ -52,7 +52,11 @@ export const DeleteConfirmModal = ({
   const projectName = project?.name ?? '不明なプロジェクト';
   const startTime = format(session.startAt, 'HH:mm');
   const endTime = format(session.endAt, 'HH:mm');
-  const duration = formatDurationMs(session.durationMs);
+  const duration = formatSessionDuration(
+    session.startAt,
+    session.endAt,
+    session.durationMs
+  );
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="セッション削除">
