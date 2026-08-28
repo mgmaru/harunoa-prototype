@@ -3,7 +3,7 @@
 import { format } from 'date-fns';
 import { ColorDot } from '@/components/ui/ColorPicker';
 import { Button } from '@/components/ui/Button';
-import { formatDurationMs } from '@/lib/date/format';
+import { formatSessionDuration } from '@/lib/date/format';
 import { Session } from '@/types/session';
 import { Project } from '@/types/project';
 
@@ -25,7 +25,11 @@ export const SessionCard = ({
 
   const startTime = format(session.startAt, 'HH:mm');
   const endTime = format(session.endAt, 'HH:mm');
-  const duration = formatDurationMs(session.durationMs);
+  const duration = formatSessionDuration(
+    session.startAt,
+    session.endAt,
+    session.durationMs
+  );
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4">

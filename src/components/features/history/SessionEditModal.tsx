@@ -5,7 +5,11 @@ import { format } from 'date-fns';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { ColorDot } from '@/components/ui/ColorPicker';
-import { formatDurationMs } from '@/lib/date/format';
+import {
+  formatDurationMs,
+  getPausedMs,
+  PAUSED_DISPLAY_THRESHOLD_MS,
+} from '@/lib/date/format';
 import { Session, UpdateSessionInput } from '@/types/session';
 import { Project } from '@/types/project';
 
@@ -32,11 +36,10 @@ export const SessionEditModal = ({
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 一時停止（休憩）時間。durationMs は実作業時間のため、経過時間との差分が休憩時間となる
+  // 一時停止時間。durationMs は一時停止を除いた計測時間のため、経過時間との差分が該当する
   const pausedMs = useMemo(() => {
     if (!session) return 0;
-    const elapsedMs = session.endAt.getTime() - session.startAt.getTime();
-    return Math.max(elapsedMs - session.durationMs, 0);
+    return getPausedMs(session.startAt, session.endAt, session.durationMs);
   }, [session]);
 
   useEffect(() => {
@@ -134,7 +137,7 @@ export const SessionEditModal = ({
       return '終了時刻は現在時刻より後にできません';
     }
 
-    // 休憩時間を除いた実作業時間が1分未満の場合はエラー
+    // 一時停止時間を除いた計測時間が1分未満の場合はエラー
     if (end.getTime() - start.getTime() - pausedMs < 60 * 1000) {
       return '計測時間は1分以上を入力してください';
     }
@@ -158,7 +161,7 @@ export const SessionEditModal = ({
     try {
       const start = new Date(startAt);
       const end = new Date(endAt);
-      // durationMs は実作業時間のため、休憩（一時停止）時間を除外する
+      // durationMs は一時停止を除いた計測時間のため、一時停止時間を除外する
       const durationMs = end.getTime() - start.getTime() - pausedMs;
 
       await onSave({
@@ -257,9 +260,9 @@ export const SessionEditModal = ({
           <p className="text-xs text-gray-500 mt-1">
             計測時間を変更すると終了時刻が自動計算されます
           </p>
-          {pausedMs > 0 && (
+          {pausedMs >= PAUSED_DISPLAY_THRESHOLD_MS && (
             <p className="text-xs text-gray-500 mt-1">
-              休憩時間（{formatDurationMs(pausedMs)}）は計測時間に含まれません
+              一時停止（{formatDurationMs(pausedMs)}）は計測時間に含まれません
             </p>
           )}
         </div>

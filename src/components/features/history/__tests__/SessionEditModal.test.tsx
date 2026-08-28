@@ -1,7 +1,8 @@
 /**
  * SessionEditModalのユニットテスト
  *
- * 関連Issue: #22 一時停止を含むセッションを編集・保存すると休憩時間が加算される
+ * 関連Issue: #22 一時停止を含むセッションを編集・保存すると一時停止時間が加算される
+ * 関連Issue: #24 時間表記の用語を「一時停止」に統一
  */
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -23,7 +24,7 @@ const project: Project = {
 };
 
 /**
- * 10:00〜10:25の経過時間に対し、実作業時間20分（＝休憩5分）のセッション
+ * 10:00〜10:25の経過時間に対し、計測時間20分（＝一時停止5分）のセッション
  */
 const createSession = (overrides: Partial<Session> = {}): Session => ({
   id: 'session-1',
@@ -82,10 +83,10 @@ describe('SessionEditModal', () => {
     expect(onSave.mock.calls[0][0].durationMs).toBe(20 * MINUTE);
   });
 
-  it('終了時刻を延ばした分だけ計測時間が増え、休憩時間は維持される', async () => {
+  it('終了時刻を延ばした分だけ計測時間が増え、一時停止時間は維持される', async () => {
     renderModal(createSession());
 
-    // 10:25 -> 10:35（経過35分、休憩5分のため実作業時間は30分）
+    // 10:25 -> 10:35（経過35分、一時停止5分のため計測時間は30分）
     fireEvent.change(screen.getByLabelText(/終了時刻/), {
       target: { value: '2025-01-15T10:35' },
     });
@@ -99,10 +100,10 @@ describe('SessionEditModal', () => {
     expect(onSave.mock.calls[0][0].durationMs).toBe(30 * MINUTE);
   });
 
-  it('計測時間を変更すると休憩時間を加算した終了時刻が算出される', async () => {
+  it('計測時間を変更すると一時停止時間を加算した終了時刻が算出される', async () => {
     renderModal(createSession());
 
-    // 実作業時間 1時間20分 -> 終了時刻は 10:00 + 1:20 + 休憩5分 = 11:25
+    // 計測時間 1時間20分 -> 終了時刻は 10:00 + 1:20 + 一時停止5分 = 11:25
     fireEvent.change(durationInputs()[0], { target: { value: '1' } });
 
     expect(screen.getByLabelText(/終了時刻/)).toHaveValue('2025-01-15T11:25');
@@ -116,7 +117,7 @@ describe('SessionEditModal', () => {
   it('開始時刻を変更しても計測時間が維持される', async () => {
     renderModal(createSession());
 
-    // 09:00 + 20分 + 休憩5分 = 09:25
+    // 09:00 + 20分 + 一時停止5分 = 09:25
     fireEvent.change(screen.getByLabelText(/開始時刻/), {
       target: { value: '2025-01-15T09:00' },
     });
@@ -129,18 +130,29 @@ describe('SessionEditModal', () => {
     expect(onSave.mock.calls[0][0].durationMs).toBe(20 * MINUTE);
   });
 
-  it('休憩時間を含むセッションでは休憩時間を表示する', () => {
+  it('一時停止を含むセッションでは一時停止時間を表示する', () => {
     renderModal(createSession());
 
-    expect(screen.getByText(/休憩時間/, { selector: 'p' })).toHaveTextContent(
-      '休憩時間（5分）は計測時間に含まれません'
+    expect(screen.getByText(/一時停止/, { selector: 'p' })).toHaveTextContent(
+      '一時停止（5分）は計測時間に含まれません'
     );
   });
 
-  it('一時停止のないセッションでは休憩時間を表示せず、経過時間をそのまま保存する', async () => {
+  it('1分未満の一時停止では注記を表示しない', () => {
+    // 経過25分に対し計測時間24分30秒（＝一時停止30秒）
+    renderModal(createSession({ durationMs: 24 * MINUTE + 30 * 1000 }));
+
+    expect(
+      screen.queryByText(/一時停止/, { selector: 'p' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('一時停止のないセッションでは注記を表示せず、経過時間をそのまま保存する', async () => {
     renderModal(createSession({ durationMs: 25 * MINUTE }));
 
-    expect(screen.queryByText(/休憩時間/, { selector: 'p' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/一時停止/, { selector: 'p' })
+    ).not.toBeInTheDocument();
 
     save();
 
@@ -148,10 +160,10 @@ describe('SessionEditModal', () => {
     expect(onSave.mock.calls[0][0].durationMs).toBe(25 * MINUTE);
   });
 
-  it('休憩時間を除いた計測時間が1分未満になる場合はエラーを表示する', async () => {
+  it('一時停止時間を除いた計測時間が1分未満になる場合はエラーを表示する', async () => {
     renderModal(createSession());
 
-    // 経過5分 - 休憩5分 = 0分
+    // 経過5分 - 一時停止5分 = 0分
     fireEvent.change(screen.getByLabelText(/終了時刻/), {
       target: { value: '2025-01-15T10:05' },
     });
