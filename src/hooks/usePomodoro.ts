@@ -9,7 +9,13 @@ export const usePomodoro = () => {
   const pomodoro = usePomodoroStore();
   const { notify } = useNotification();
   const lastTickRef = useRef<number>(Date.now());
-  const prevRemainingRef = useRef(pomodoro.remainingMs);
+
+  // tick処理から常に最新のnotifyを参照するためのref
+  // （notifyを依存配列に入れるとintervalが張り直されてしまう）
+  const notifyRef = useRef(notify);
+  useEffect(() => {
+    notifyRef.current = notify;
+  }, [notify]);
 
   // タイマーのtick処理
   useEffect(() => {
@@ -24,7 +30,26 @@ export const usePomodoro = () => {
       const now = Date.now();
       const delta = now - lastTickRef.current;
       lastTickRef.current = now;
-      pomodoro.tick(delta);
+
+      const completed = usePomodoroStore.getState().tick(delta);
+
+      // バックグラウンドから復帰した場合は複数のフェーズがまとめて終了しうるため、
+      // 最後に終了したフェーズのみ通知する
+      const lastCompleted = completed[completed.length - 1];
+
+      if (lastCompleted === 'focus') {
+        notifyRef.current({
+          title: '集中時間終了',
+          message: '休憩を取りましょう',
+          sound: 'focus',
+        });
+      } else if (lastCompleted === 'break') {
+        notifyRef.current({
+          title: '休憩終了',
+          message: '次の集中を開始できます',
+          sound: 'break',
+        });
+      }
     }, 100);
 
     return () => clearInterval(interval);
@@ -32,33 +57,17 @@ export const usePomodoro = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pomodoro.phase, pomodoro.isEnabled]);
 
-  // 時間切れの検知と通知
-  useEffect(() => {
-    const wasRunning = prevRemainingRef.current > 0;
-    const isFinished = pomodoro.remainingMs === 0;
+  // 待機中はtickが停止しており前回tick時刻が古いままのため、
+  // 手動でフェーズを開始する際は基準時刻を更新してから開始する
+  const startFocus = useCallback(() => {
+    lastTickRef.current = Date.now();
+    usePomodoroStore.getState().startFocus();
+  }, []);
 
-    if (wasRunning && isFinished && pomodoro.phase !== 'idle') {
-      if (pomodoro.phase === 'focus') {
-        notify({
-          title: '集中時間終了',
-          message: '休憩を取りましょう',
-          sound: 'focus',
-        });
-        pomodoro.startBreak();
-      } else if (pomodoro.phase === 'break') {
-        notify({
-          title: '休憩終了',
-          message: '次の集中を開始できます',
-          sound: 'break',
-        });
-        pomodoro.stop();
-      }
-    }
-
-    prevRemainingRef.current = pomodoro.remainingMs;
-    // Zustandストアの関数参照は安定している
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pomodoro.remainingMs, pomodoro.phase, notify]);
+  const skipBreak = useCallback(() => {
+    lastTickRef.current = Date.now();
+    usePomodoroStore.getState().skipBreak();
+  }, []);
 
   // タイマー計測開始時にポモドーロも開始
   // Zustandストアから直接最新の状態を取得することで、
@@ -85,8 +94,8 @@ export const usePomodoro = () => {
     breakDurationMinutes: pomodoro.breakDurationMinutes,
     presetId: pomodoro.presetId,
     setPreset: pomodoro.setPreset,
-    startFocus: pomodoro.startFocus,
-    skipBreak: pomodoro.skipBreak,
+    startFocus,
+    skipBreak,
     stop: pomodoro.stop,
     startWithTimer,
     stopWithTimer,

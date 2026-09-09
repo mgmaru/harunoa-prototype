@@ -206,7 +206,7 @@ export default function FocusPage() {
       </div>
 
       {/* ポモドーロ進捗（有効時のみ表示） */}
-      {timer.pomodoro.isEnabled && !timer.pomodoro.isIdle && (
+      {timer.pomodoro.isEnabled && (
         <div className="p-4 bg-gray-800 border-t border-gray-700">
           <PomodoroProgress
             phase={timer.pomodoro.phase}
@@ -214,6 +214,7 @@ export default function FocusPage() {
             focusDurationMinutes={timer.pomodoro.focusDurationMinutes}
             breakDurationMinutes={timer.pomodoro.breakDurationMinutes}
             onSkip={timer.pomodoro.skipBreak}
+            onStartFocus={timer.pomodoro.startFocus}
           />
         </div>
       )}
