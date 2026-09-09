@@ -21,7 +21,13 @@ type PomodoroActions = {
   startFocus: () => void;
   startBreak: () => void;
   skipBreak: () => void;
-  tick: (deltaMs: number) => void;
+  /**
+   * 経過時間を反映してフェーズを進める
+   *
+   * @param deltaMs 前回tickからの経過時間（ミリ秒）
+   * @returns このtickで終了したフェーズ（古い順）
+   */
+  tick: (deltaMs: number) => PomodoroPhase[];
   stop: () => void;
   reset: () => void;
 };
@@ -95,11 +101,39 @@ export const usePomodoroStore = create<PomodoroState & PomodoroActions>()(
       },
 
       tick: (deltaMs) => {
-        const { remainingMs, phase } = get();
-        if (phase === 'idle') return;
+        const { phase, remainingMs, breakDurationMinutes } = get();
+        if (phase === 'idle' || deltaMs <= 0) return [];
 
-        const newRemaining = Math.max(0, remainingMs - deltaMs);
-        set({ remainingMs: newRemaining });
+        // バックグラウンドタブでは`setInterval`が間引かれ、1回のtickに
+        // フェーズ残り時間を超える経過時間が渡されることがある。
+        // 超過分を次のフェーズへ繰り越し、実時間どおりにフェーズを進める。
+        const completed: PomodoroPhase[] = [];
+        let currentPhase: PomodoroPhase = phase;
+        let remaining = remainingMs;
+        let rest = deltaMs;
+
+        while (currentPhase !== 'idle') {
+          if (rest < remaining) {
+            remaining -= rest;
+            break;
+          }
+
+          rest -= remaining;
+          completed.push(currentPhase);
+
+          if (currentPhase === 'focus') {
+            // 集中終了 → 休憩へ
+            currentPhase = 'break';
+            remaining = breakDurationMinutes * 60 * 1000;
+          } else {
+            // 休憩終了 → 待機へ（v2では自動繰り返しなし）
+            currentPhase = 'idle';
+            remaining = 0;
+          }
+        }
+
+        set({ phase: currentPhase, remainingMs: remaining });
+        return completed;
       },
 
       stop: () => {

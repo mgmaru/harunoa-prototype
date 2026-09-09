@@ -47,7 +47,18 @@ stateDiagram-v2
 
 - v2では**自動繰り返しなし**
 - 休憩終了後はIdle状態に戻る
-- ユーザーが手動で次の集中を開始する
+- ユーザーが手動で次の集中を開始する（集中モードの「集中を開始」ボタン）
+
+### バックグラウンド時の挙動
+
+バックグラウンドタブでは`setInterval`が間引かれ（最大1分間隔）、タブが凍結されると
+実行されないことがある。そのため1回のtickにフェーズ残り時間を超える経過時間が
+渡されうる。
+
+| 項目 | 挙動 |
+|------|------|
+| 超過分の扱い | 次のフェーズへ繰り越す（集中→休憩→待機） |
+| 通知 | 複数フェーズがまとめて終了した場合は最後に終了したフェーズのみ通知する |
 
 ---
 
@@ -76,7 +87,8 @@ interface PomodoroActions {
   startFocus: () => void;
   startBreak: () => void;
   skipBreak: () => void;
-  tick: (deltaMs: number) => void;
+  /** 経過時間を反映してフェーズを進め、終了したフェーズを古い順に返す */
+  tick: (deltaMs: number) => PomodoroPhase[];
   stop: () => void;
   reset: () => void;
 }
@@ -139,13 +151,40 @@ export const usePomodoroStore = create<PomodoroState & PomodoroActions>()(
       },
 
       tick: (deltaMs) => {
-        const { remainingMs, phase } = get();
-        if (phase === 'idle') return;
+        const { phase, remainingMs, breakMinutes } = get();
+        if (phase === 'idle' || deltaMs <= 0) return [];
 
-        const newRemaining = Math.max(0, remainingMs - deltaMs);
-        set({ remainingMs: newRemaining });
+        // フェーズ残り時間を超えた分は次のフェーズへ繰り越す
+        // （バックグラウンドタブでintervalが間引かれるため）
+        const completed: PomodoroPhase[] = [];
+        let currentPhase: PomodoroPhase = phase;
+        let remaining = remainingMs;
+        let rest = deltaMs;
 
-        // 時間切れの処理は usePomodoro フック側で行う
+        while (currentPhase !== 'idle') {
+          if (rest < remaining) {
+            remaining -= rest;
+            break;
+          }
+
+          rest -= remaining;
+          completed.push(currentPhase);
+
+          if (currentPhase === 'focus') {
+            // 集中終了 → 休憩へ
+            currentPhase = 'break';
+            remaining = breakMinutes * 60 * 1000;
+          } else {
+            // 休憩終了 → 待機へ（自動繰り返しなし）
+            currentPhase = 'idle';
+            remaining = 0;
+          }
+        }
+
+        set({ phase: currentPhase, remainingMs: remaining });
+
+        // 通知は usePomodoro フック側で戻り値をもとに行う
+        return completed;
       },
 
       stop: () => {
@@ -180,10 +219,8 @@ export function usePomodoro() {
   const { notify } = useNotification();
   const { settings } = useSettings();
   const lastTickRef = useRef<number>(Date.now());
-  const prevPhaseRef = useRef(pomodoro.phase);
-  const prevRemainingRef = useRef(pomodoro.remainingMs);
 
-  // タイマーのtick処理
+  // タイマーのtick処理とフェーズ終了の通知
   useEffect(() => {
     if (pomodoro.phase === 'idle' || !pomodoro.isEnabled) return;
 
@@ -191,40 +228,44 @@ export function usePomodoro() {
       const now = Date.now();
       const delta = now - lastTickRef.current;
       lastTickRef.current = now;
-      pomodoro.tick(delta);
-    }, 100);
 
-    return () => clearInterval(interval);
-  }, [pomodoro.phase, pomodoro.isEnabled]);
+      const completed = pomodoro.tick(delta);
 
-  // 時間切れの検知と通知
-  useEffect(() => {
-    const wasRunning = prevRemainingRef.current > 0;
-    const isFinished = pomodoro.remainingMs === 0;
+      // バックグラウンドから復帰した場合は複数のフェーズがまとめて
+      // 終了しうるため、最後に終了したフェーズのみ通知する
+      const lastCompleted = completed[completed.length - 1];
 
-    if (wasRunning && isFinished && pomodoro.phase !== 'idle') {
-      if (pomodoro.phase === 'focus') {
-        // 集中終了
+      if (lastCompleted === 'focus') {
+        // 集中終了 → 休憩へ移行済み
         notify({
           title: '集中時間終了',
           message: '休憩を取りましょう',
           sound: settings?.soundEnabled ? 'focus' : null,
         });
-        pomodoro.startBreak();
-      } else if (pomodoro.phase === 'break') {
-        // 休憩終了
+      } else if (lastCompleted === 'break') {
+        // 休憩終了 → Idle状態（手動で次を開始）
         notify({
           title: '休憩終了',
           message: '次の集中を開始できます',
           sound: settings?.soundEnabled ? 'break' : null,
         });
-        pomodoro.stop(); // Idle状態に戻る（手動で次を開始）
       }
-    }
+    }, 100);
 
-    prevPhaseRef.current = pomodoro.phase;
-    prevRemainingRef.current = pomodoro.remainingMs;
-  }, [pomodoro.remainingMs, pomodoro.phase, notify, settings?.soundEnabled]);
+    return () => clearInterval(interval);
+  }, [pomodoro.phase, pomodoro.isEnabled]);
+
+  // 待機中はtickが停止して前回tick時刻が古いままになるため、
+  // 手動でフェーズを開始する際は基準時刻を更新してから開始する
+  const startFocus = useCallback(() => {
+    lastTickRef.current = Date.now();
+    usePomodoroStore.getState().startFocus();
+  }, []);
+
+  const skipBreak = useCallback(() => {
+    lastTickRef.current = Date.now();
+    usePomodoroStore.getState().skipBreak();
+  }, []);
 
   // タイマー計測開始時にポモドーロも開始
   const startWithTimer = useCallback(() => {
@@ -315,6 +356,7 @@ export default function FocusPage() {
             focusMinutes={pomodoro.focusMinutes}
             breakMinutes={pomodoro.breakMinutes}
             onSkip={pomodoro.skipBreak}
+            onStartFocus={pomodoro.startFocus}
           />
         </div>
       )}
@@ -337,6 +379,7 @@ interface Props {
   focusMinutes: number;
   breakMinutes: number;
   onSkip: () => void;
+  onStartFocus: () => void;
 }
 
 export function PomodoroProgress({
@@ -345,6 +388,7 @@ export function PomodoroProgress({
   focusMinutes,
   breakMinutes,
   onSkip,
+  onStartFocus,
 }: Props) {
   const totalMs = phase === 'focus'
     ? focusMinutes * 60 * 1000
@@ -354,6 +398,28 @@ export function PomodoroProgress({
 
   const phaseLabel = phase === 'focus' ? '集中' : phase === 'break' ? '休憩' : '待機';
   const phaseColor = phase === 'focus' ? 'bg-green-500' : 'bg-blue-500';
+
+  // 待機中（休憩終了後）は次の集中を手動で開始できるようにする
+  if (phase === 'idle') {
+    return (
+      <div>
+        <div className="h-2 bg-gray-600 rounded-full mb-2" />
+
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-gray-400">
+            ポモドーロ: 待機中（{focusMinutes}:00）
+          </span>
+
+          <button
+            onClick={onStartFocus}
+            className="text-green-400 hover:text-green-300"
+          >
+            ▶ 集中を開始
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>

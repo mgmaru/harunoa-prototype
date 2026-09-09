@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
+import type { PomodoroPhase } from '@/stores/pomodoroStore';
 
 // Firebase configをモック
 vi.mock('@/lib/firebase/config', () => ({
@@ -8,19 +9,8 @@ vi.mock('@/lib/firebase/config', () => ({
   db: {},
 }));
 
-// useNotificationをモック
-vi.mock('../useNotification', () => ({
-  useNotification: () => ({
-    notify: vi.fn(),
-    playSound: vi.fn(),
-    requestPermission: vi.fn(),
-    sendBrowserNotification: vi.fn(),
-    showInAppNotification: vi.fn(),
-  }),
-}));
-
 // vi.hoistedでモック変数をvi.mockより先に初期化
-const { mockPomodoroStore, mockTimerStore } = vi.hoisted(() => {
+const { mockPomodoroStore, mockTimerStore, mockNotify } = vi.hoisted(() => {
   const mockPomodoroStore = {
     phase: 'idle' as 'idle' | 'focus' | 'break',
     remainingMs: 0,
@@ -32,15 +22,27 @@ const { mockPomodoroStore, mockTimerStore } = vi.hoisted(() => {
     startFocus: vi.fn(),
     startBreak: vi.fn(),
     skipBreak: vi.fn(),
-    tick: vi.fn(),
+    tick: vi.fn(() => [] as PomodoroPhase[]),
     stop: vi.fn(),
     reset: vi.fn(),
   };
   const mockTimerStore = {
     status: 'stopped' as 'stopped' | 'running' | 'paused',
   };
-  return { mockPomodoroStore, mockTimerStore };
+  const mockNotify = vi.fn();
+  return { mockPomodoroStore, mockTimerStore, mockNotify };
 });
+
+// useNotificationをモック
+vi.mock('../useNotification', () => ({
+  useNotification: () => ({
+    notify: mockNotify,
+    playSound: vi.fn(),
+    requestPermission: vi.fn(),
+    sendBrowserNotification: vi.fn(),
+    showInAppNotification: vi.fn(),
+  }),
+}));
 
 vi.mock('@/stores/pomodoroStore', () => ({
   usePomodoroStore: Object.assign(
@@ -70,6 +72,7 @@ describe('usePomodoro', () => {
     mockPomodoroStore.breakDurationMinutes = 5;
     mockPomodoroStore.isEnabled = false;
     mockTimerStore.status = 'stopped';
+    mockPomodoroStore.tick.mockReturnValue([]);
   });
 
   afterEach(() => {
@@ -233,6 +236,93 @@ describe('usePomodoro', () => {
       expect(result.current.focusDurationMinutes).toBe(30);
       expect(result.current.breakDurationMinutes).toBe(7);
       expect(result.current.isEnabled).toBe(true);
+    });
+  });
+  describe('startFocus', () => {
+    it('待機中から次の集中を開始できる', () => {
+      mockPomodoroStore.phase = 'idle';
+      mockPomodoroStore.isEnabled = true;
+
+      const { result } = renderHook(() => usePomodoro());
+
+      act(() => {
+        result.current.startFocus();
+      });
+
+      expect(mockPomodoroStore.startFocus).toHaveBeenCalled();
+    });
+  });
+
+  describe('フェーズ終了時の通知', () => {
+    /** 計測中の集中フェーズでtickを1回進める */
+    const advanceOneTick = () => {
+      mockPomodoroStore.phase = 'focus';
+      mockPomodoroStore.isEnabled = true;
+      mockTimerStore.status = 'running';
+
+      renderHook(() => usePomodoro());
+
+      act(() => {
+        vi.advanceTimersByTime(100);
+      });
+    };
+
+    it('フェーズが終了していない場合は通知しない', () => {
+      mockPomodoroStore.tick.mockReturnValue([]);
+
+      advanceOneTick();
+
+      expect(mockPomodoroStore.tick).toHaveBeenCalled();
+      expect(mockNotify).not.toHaveBeenCalled();
+    });
+
+    it('集中フェーズ終了時に集中終了を通知する', () => {
+      mockPomodoroStore.tick.mockReturnValue(['focus']);
+
+      advanceOneTick();
+
+      expect(mockNotify).toHaveBeenCalledTimes(1);
+      expect(mockNotify).toHaveBeenCalledWith(
+        expect.objectContaining({ title: '集中時間終了', sound: 'focus' })
+      );
+    });
+
+    it('休憩フェーズ終了時に休憩終了を通知する', () => {
+      mockPomodoroStore.tick.mockReturnValue(['break']);
+
+      advanceOneTick();
+
+      expect(mockNotify).toHaveBeenCalledTimes(1);
+      expect(mockNotify).toHaveBeenCalledWith(
+        expect.objectContaining({ title: '休憩終了', sound: 'break' })
+      );
+    });
+
+    it('複数フェーズがまとめて終了した場合は最後のフェーズのみ通知する', () => {
+      // バックグラウンドから復帰し、集中と休憩がまとめて終了したケース
+      mockPomodoroStore.tick.mockReturnValue(['focus', 'break']);
+
+      advanceOneTick();
+
+      expect(mockNotify).toHaveBeenCalledTimes(1);
+      expect(mockNotify).toHaveBeenCalledWith(
+        expect.objectContaining({ title: '休憩終了', sound: 'break' })
+      );
+    });
+
+    it('計測中でない場合はtickしない', () => {
+      mockPomodoroStore.phase = 'focus';
+      mockPomodoroStore.isEnabled = true;
+      mockTimerStore.status = 'paused';
+
+      renderHook(() => usePomodoro());
+
+      act(() => {
+        vi.advanceTimersByTime(100);
+      });
+
+      expect(mockPomodoroStore.tick).not.toHaveBeenCalled();
+      expect(mockNotify).not.toHaveBeenCalled();
     });
   });
 });

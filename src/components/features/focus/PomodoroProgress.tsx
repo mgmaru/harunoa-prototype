@@ -9,12 +9,19 @@ const SkipForwardIcon = () => (
   </svg>
 );
 
+const PlayIcon = () => (
+  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M8 5v14l11-7z" />
+  </svg>
+);
+
 type Props = {
   phase: PomodoroPhase;
   remainingMs: number;
   focusDurationMinutes: number;
   breakDurationMinutes: number;
   onSkip: () => void;
+  onStartFocus: () => void;
 };
 
 export const PomodoroProgress = ({
@@ -23,6 +30,7 @@ export const PomodoroProgress = ({
   focusDurationMinutes,
   breakDurationMinutes,
   onSkip,
+  onStartFocus,
 }: Props) => {
   const totalMs =
     phase === 'focus'
@@ -37,8 +45,27 @@ export const PomodoroProgress = ({
   const totalMinutes = phase === 'focus' ? focusDurationMinutes : breakDurationMinutes;
   const totalFormatted = formatTimeMs(totalMinutes * 60 * 1000);
 
+  // 待機中（休憩終了後）は次の集中を手動で開始できるようにする
   if (phase === 'idle') {
-    return null;
+    return (
+      <div className="w-full">
+        <div className="h-2 bg-gray-600 rounded-full mb-2" />
+
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-gray-400">
+            ポモドーロ: {phaseLabel}中（{formatTimeMs(focusDurationMinutes * 60 * 1000)}）
+          </span>
+
+          <button
+            onClick={onStartFocus}
+            className="text-green-400 hover:text-green-300 transition-colors flex items-center gap-1"
+          >
+            <PlayIcon />
+            <span>集中を開始</span>
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
